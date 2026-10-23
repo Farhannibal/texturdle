@@ -1,0 +1,41 @@
+[
+  {
+    "id": "sonic-adventure-2-battle-sonic",
+    "platform": "GameCube",
+    "game": "Sonic Adventure 2: Battle",
+    "category": "Playable Characters",
+    "name": "Sonic",
+    "credit": "divx2k60",
+    "textureCount": 9,
+    "sheet": {
+      "width": 422,
+      "height": 368
+    }
+  },
+  {
+    "id": "super-mario-sunshine-mario",
+    "platform": "GameCube",
+    "game": "Super Mario Sunshine",
+    "category": "Playable Characters",
+    "name": "Mario",
+    "credit": null,
+    "textureCount": 5,
+    "sheet": {
+      "width": 382,
+      "height": 448
+    }
+  },
+  {
+    "id": "the-legend-of-zelda-the-wind-waker-link",
+    "platform": "GameCube",
+    "game": "The Legend of Zelda: The Wind Waker",
+    "category": "Playable Characters",
+    "name": "Link",
+    "credit": null,
+    "textureCount": 5,
+    "sheet": {
+      "width": 301,
+      "height": 336
+    }
+  }
+]
