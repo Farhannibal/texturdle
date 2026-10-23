@@ -1,1 +1,21 @@
-{}
+{
+  "final-fantasy-x-tidus-low-poly": {
+    "skip": true,
+    "reason": "Exported Z-up at ~18,000 units tall; freezes the viewer"
+  },
+  "the-legend-of-zelda-ocarina-of-time-link-adult-high-poly": {
+    "skip": true,
+    "reason": "Tunic renders white: N64 colours it outside the texture, which doesn't survive conversion"
+  },
+  "pokemon-stadium-2-0025-pikachu": {
+    "skip": true,
+    "reason": "A stray dark-red slab cuts through the model"
+  },
+  "super-smash-bros-brawl-mario": {
+    "skip": true,
+    "reason": "Imports lying down and ignores the rotateX fix"
+  },
+  "the-simpsons-game-bart": {
+    "rotateX": 90
+  }
+}

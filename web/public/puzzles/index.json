@@ -1,5 +1,89 @@
 [
   {
+    "id": "final-fantasy-ix-zidane",
+    "platform": "PC / Computer",
+    "game": "Final Fantasy IX",
+    "category": "Playable Characters",
+    "name": "Zidane",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 2,
+    "sheet": {
+      "width": 840,
+      "height": 1036
+    }
+  },
+  {
+    "id": "kingdom-hearts-sora",
+    "platform": "PlayStation 2",
+    "game": "Kingdom Hearts",
+    "category": "Playable Characters",
+    "name": "Sora",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 7,
+    "sheet": {
+      "width": 402,
+      "height": 400
+    }
+  },
+  {
+    "id": "mario-party-2-mario",
+    "platform": "Nintendo 64",
+    "game": "Mario Party 2",
+    "category": "Playable Characters",
+    "name": "Mario",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 4,
+    "sheet": {
+      "width": 285,
+      "height": 268
+    }
+  },
+  {
+    "id": "pokemon-stadium-2-0006-charizard",
+    "platform": "Nintendo 64",
+    "game": "Pokemon Stadium 2",
+    "category": "Pokemon (1st Generation)",
+    "name": "#0006 Charizard",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 12,
+    "sheet": {
+      "width": 396,
+      "height": 368
+    }
+  },
+  {
+    "id": "pokemon-stadium-2-0094-gengar",
+    "platform": "Nintendo 64",
+    "game": "Pokemon Stadium 2",
+    "category": "Pokemon (1st Generation)",
+    "name": "#0094 Gengar",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 6,
+    "sheet": {
+      "width": 282,
+      "height": 304
+    }
+  },
+  {
+    "id": "silent-hill-2-pyramid-head",
+    "platform": "PlayStation 2",
+    "game": "Silent Hill 2",
+    "category": "Enemies",
+    "name": "Pyramid Head",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 3,
+    "sheet": {
+      "width": 1028,
+      "height": 1552
+    }
+  },
+  {
     "id": "sonic-adventure-2-battle-sonic",
     "platform": "GameCube",
     "game": "Sonic Adventure 2: Battle",
@@ -11,6 +95,20 @@
     "sheet": {
       "width": 422,
       "height": 368
+    }
+  },
+  {
+    "id": "super-mario-odyssey-mario-boxers",
+    "platform": "Nintendo Switch",
+    "game": "Super Mario Odyssey",
+    "category": "Playable Characters",
+    "name": "Mario (Boxers)",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 9,
+    "sheet": {
+      "width": 1007,
+      "height": 1300
     }
   },
   {
@@ -28,6 +126,20 @@
     }
   },
   {
+    "id": "super-smash-bros-samus",
+    "platform": "Nintendo 64",
+    "game": "Super Smash Bros.",
+    "category": "Fighters",
+    "name": "Samus",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 18,
+    "sheet": {
+      "width": 489,
+      "height": 504
+    }
+  },
+  {
     "id": "the-legend-of-zelda-the-wind-waker-link",
     "platform": "GameCube",
     "game": "The Legend of Zelda: The Wind Waker",
@@ -39,6 +151,20 @@
     "sheet": {
       "width": 301,
       "height": 336
+    }
+  },
+  {
+    "id": "the-simpsons-game-bart",
+    "platform": "Wii",
+    "game": "The Simpsons Game",
+    "category": "Playable Characters",
+    "name": "Bart",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 1,
+    "sheet": {
+      "width": 152,
+      "height": 136
     }
   }
 ]

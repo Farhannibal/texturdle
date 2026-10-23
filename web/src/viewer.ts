@@ -144,6 +144,8 @@ export function createViewer(container: HTMLElement, outline = "#4a5064"): Viewe
       for (const m of [mesh.material].flat() as THREE.MeshStandardMaterial[]) {
         // Ripped models often have cutout textures and single-sided faces that look broken otherwise.
         m.side = THREE.DoubleSide;
+        // Some COLLADA imports come through with zero opacity; let the texture's alpha decide.
+        m.opacity = 1;
         if (m.map) {
           m.map.magFilter = THREE.NearestFilter;
           m.alphaTest = 0.4;

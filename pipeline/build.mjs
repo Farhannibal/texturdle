@@ -7,6 +7,8 @@
 //   "<Platform> - <Game> - <Category> - <Model>.zip"
 // Per-puzzle fixes go in data/overrides.json, keyed by slug:
 //   { "<slug>": { "model": "path/inside/zip.dae", "excludeTextures": ["eye"] } }
+// Set "skip": true (with an optional "reason") to leave a model out of the game, or
+// "rotateX": -90 to stand up a model that was exported lying down.
 
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -26,6 +28,7 @@ const IMAGE_EXTS = [".png", ".jpg", ".jpeg", ".tga", ".bmp"];
 const GRID = 6;
 const REVEAL = [0.25, 0.75];
 const MIN_TILE = 96; // tiny textures are scaled up by whole multiples so they stay readable
+const MAX_TILE = 512; // modern high-res textures are scaled down so the sheet stays a sensible size
 const PAD = 4;
 
 const overrides = readJson(path.join(ROOT, "data/overrides.json"), {});
@@ -41,8 +44,8 @@ function parseZipName(file) {
   const parts = path.basename(file, ".zip").split(" - ");
   if (parts.length < 4) throw new Error(`Expected "Platform - Game - Category - Model.zip", got "${file}"`);
   const [platform, game, category, ...rest] = parts;
-  // Windows can't store ":" in filenames, so downloads use "_ " instead.
-  const clean = (s) => s.replace(/_ /g, ": ").trim();
+  // Windows can't store ":" or "/" in filenames, so downloads use "_ " and " _ " instead.
+  const clean = (s) => s.replace(/ _ /g, " / ").replace(/_ /g, ": ").trim();
   const name = clean(rest.join(" - "));
   return { platform: clean(platform), game: clean(game), category: clean(category), name };
 }
@@ -84,9 +87,11 @@ async function buildSheet(texturePaths) {
   const tiles = [];
   for (const file of texturePaths) {
     const meta = await sharp(file).metadata();
-    const scale = Math.max(1, Math.ceil(MIN_TILE / Math.max(meta.width, meta.height)));
-    const w = meta.width * scale, h = meta.height * scale;
-    const buf = await sharp(file).ensureAlpha().resize(w, h, { kernel: "nearest" }).png().toBuffer();
+    const side = Math.max(meta.width, meta.height);
+    const scale = side > MAX_TILE ? MAX_TILE / side : Math.max(1, Math.ceil(MIN_TILE / side));
+    const w = Math.round(meta.width * scale), h = Math.round(meta.height * scale);
+    const kernel = scale < 1 ? "lanczos3" : "nearest";
+    const buf = await sharp(file).ensureAlpha().resize(w, h, { kernel }).png().toBuffer();
     tiles.push({ file, w, h, buf });
   }
   tiles.sort((a, b) => b.h - a.h || b.w - a.w);
@@ -159,6 +164,11 @@ async function buildPuzzle(zipFile) {
   if (filter && !id.includes(filter)) return null;
   const override = overrides[id] ?? {};
   console.log(`\n▸ ${id}`);
+  if (override.skip) {
+    console.log(`  skipped  ${override.reason ?? "marked skip in data/overrides.json"}`);
+    fs.rmSync(path.join(OUT, id), { recursive: true, force: true });
+    return { id, skipped: true };
+  }
 
   const raw = path.join(RAW, id);
   fs.rmSync(raw, { recursive: true, force: true });
@@ -172,7 +182,7 @@ async function buildPuzzle(zipFile) {
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
   const report = path.join(raw, "_textures.json");
-  execFileSync(BLENDER, ["-b", "--factory-startup", "-P", path.join(ROOT, "pipeline/blender_export.py"), "--", model, path.join(out, "model.glb"), report], {
+  execFileSync(BLENDER, ["-b", "--factory-startup", "-P", path.join(ROOT, "pipeline/blender_export.py"), "--", model, path.join(out, "model.glb"), report, String(override.rotateX ?? 0)], {
     stdio: process.env.VERBOSE ? "inherit" : "pipe",
   });
   const used = readJson(report, { textures: [], missing: [] });
@@ -211,7 +221,8 @@ let failed = 0;
 for (const zip of zips) {
   try {
     const puzzle = await buildPuzzle(zip);
-    if (puzzle) existing.set(puzzle.id, puzzle);
+    if (puzzle?.skipped) existing.delete(puzzle.id);
+    else if (puzzle) existing.set(puzzle.id, puzzle);
   } catch (err) {
     failed++;
     console.error(`  ✗ ${path.basename(zip)}: ${err.message}`);
