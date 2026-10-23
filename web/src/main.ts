@@ -37,7 +37,7 @@ $("#practice-flag").hidden = !practice;
 
 // ---- Stage tabs + hint frame -----------------------------------------------
 
-function renderStage() {
+function renderStage(animate = false) {
   const unlocked = unlockedStage(state);
   const tabs = $("#tabs");
   tabs.replaceChildren(
@@ -55,29 +55,45 @@ function renderStage() {
   );
 
   $("#stage-caption").textContent = `Stage ${viewing} of ${MAX_GUESSES} · ${STAGES[viewing - 1].hint}`;
-  const frame = $("#frame");
-  viewer?.dispose();
-  viewer = null;
+  showInFrame(viewing, animate);
+}
 
-  if (viewing < 4) {
-    const img = h("img", "hint");
-    img.src = `/puzzles/${puzzle.id}/hint${viewing}.png`;
-    img.alt = `${STAGES[viewing - 1].hint} from today's model`;
-    frame.replaceChildren(img);
-    return;
-  }
-  const status = h("p", "frame-status", "Loading model…");
-  frame.replaceChildren(status);
-  const mountFor = viewing;
-  import("./viewer")
-    .then(({ mountViewer }) => mountViewer(frame, `/puzzles/${puzzle.id}/model.glb`))
-    .then((v) => {
-      if (viewing !== mountFor) return v.dispose();
-      status.remove();
-      viewer = v;
-      frame.append(h("p", "frame-tip", "Drag to rotate · scroll to zoom"));
-    })
-    .catch(() => (status.textContent = "This model couldn't be displayed. Your browser may not support WebGL."));
+// The frame shows hints and the model in the 3D viewer. Until it loads (or if WebGL is
+// unavailable) texture hints fall back to a flat <img>.
+const frameImg = $<HTMLImageElement>("#frame-img");
+const frameStatus = $("#frame-status");
+const frameTip = $("#frame-tip");
+const viewerReady: Promise<Viewer | null> = import("./viewer")
+  .then(({ createViewer }) => (viewer = createViewer($("#frame-3d"))))
+  .catch(() => null);
+
+/** `animate` spins the current hint into the next one (used after a guess, not for tab clicks). */
+function showInFrame(n: number, animate = false) {
+  const isModel = n === 4;
+  const url = isModel ? `/puzzles/${puzzle.id}/model.glb` : `/puzzles/${puzzle.id}/hint${n}.png`;
+  $("#frame").setAttribute("aria-label", `${STAGES[n - 1].hint} from today's model`);
+  frameTip.hidden = true;
+  frameStatus.hidden = !isModel;
+  frameStatus.textContent = "Loading model…";
+  if (!viewer && !isModel) frameImg.src = url;
+  frameImg.hidden = !!viewer || isModel;
+
+  viewerReady.then(async (v) => {
+    if (!v) {
+      if (isModel) frameStatus.textContent = "This model couldn't be displayed. Your browser may not support WebGL.";
+      return;
+    }
+    try {
+      const opts = { animate, onLoaded: () => (frameStatus.hidden = true) };
+      if (!(await (isModel ? v.showModel(url, opts) : v.showImage(url, opts))) || viewing !== n) return;
+      frameImg.hidden = true;
+      frameStatus.hidden = true;
+      frameTip.hidden = false;
+    } catch {
+      frameStatus.hidden = false;
+      frameStatus.textContent = isModel ? "This model couldn't be loaded." : "This hint couldn't be loaded.";
+    }
+  });
 }
 
 // ---- Guess board ------------------------------------------------------------
@@ -163,7 +179,7 @@ function play(game: Game | null) {
   selected = null;
   input.value = "";
   submit.disabled = true;
-  render();
+  render(true);
   if (state.status !== "playing") $("#result").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
@@ -277,8 +293,8 @@ if (import.meta.env.DEV) {
   };
 }
 
-function render() {
-  renderStage();
+function render(animate = false) {
+  renderStage(animate);
   renderBoard();
   renderResult();
 }

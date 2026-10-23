@@ -35,7 +35,12 @@
     <main class="game">
       <section class="stage" aria-label="Hint">
         <div class="tabs" id="tabs" role="tablist" aria-label="Hint stages"></div>
-        <div class="frame" id="frame"></div>
+        <div class="frame" id="frame" role="img">
+          <div class="frame-3d" id="frame-3d"></div>
+          <img class="hint" id="frame-img" alt="" hidden />
+          <p class="frame-status" id="frame-status" hidden></p>
+          <p class="frame-tip" id="frame-tip" hidden>Drag to rotate · scroll to zoom · double-click to reset</p>
+        </div>
         <p class="caption" id="stage-caption"></p>
       </section>
 

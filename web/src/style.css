@@ -1,6 +1,5 @@
-/* Texturdle: a dark "texture viewer" look. Transparent pixels sit on a grey checker,
-   hidden hint cells use --hidden (same colour the pipeline paints), magenta is the
-   brand nod to the missing-texture checkerboard. */
+/* Texturdle: a dark "texture viewer" look. Transparent and hidden pixels sit on a grey checker;
+   magenta is the brand nod to the missing-texture checkerboard. */
 :root {
   --bg: #12141b;
   --panel: #1a1d27;
@@ -10,7 +9,6 @@
   --muted: #9aa1b4;
   --accent: #e23aa6;
   --accent-ink: #fff;
-  --hidden: #20242e;
   --checker-a: #2a2e3a;
   --checker-b: #343947;
   --correct: #3fbf7f;
@@ -88,14 +86,17 @@ button:disabled { cursor: not-allowed; }
   position: relative; aspect-ratio: 1; max-width: 100%; border-radius: var(--radius); overflow: hidden;
   border: 1px solid var(--line);
   background: repeating-conic-gradient(var(--checker-a) 0 25%, var(--checker-b) 0 50%) 0 0 / 24px 24px;
-  display: grid; place-items: center;
+  display: grid; place-items: center; user-select: none; -webkit-user-select: none;
 }
-.frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
-.hint { width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
-.frame-status { color: var(--muted); margin: 0; background: var(--panel); padding: 6px 12px; border-radius: 6px; }
+.frame-3d { position: absolute; inset: 0; }
+.frame canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.frame canvas:active { cursor: grabbing; }
+.hint { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+.frame-status { position: relative; color: var(--muted); margin: 0; background: var(--panel); padding: 6px 12px; border-radius: 6px; }
 .frame-tip {
   position: absolute; bottom: 10px; left: 50%; translate: -50% 0; margin: 0; pointer-events: none;
-  font-size: 13px; white-space: nowrap; color: var(--muted); background: color-mix(in srgb, var(--bg) 80%, transparent); padding: 3px 10px; border-radius: 99px;
+  width: max-content; max-width: calc(100% - 20px); text-align: center;
+  font-size: 13px; color: var(--muted); background: color-mix(in srgb, var(--bg) 80%, transparent); padding: 3px 10px; border-radius: 99px;
 }
 .caption { margin: 0; color: var(--muted); font-size: 14px; }
 

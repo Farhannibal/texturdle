@@ -27,7 +27,6 @@ const GRID = 6;
 const REVEAL = [0.25, 0.75];
 const MIN_TILE = 96; // tiny textures are scaled up by whole multiples so they stay readable
 const PAD = 4;
-const HIDDEN = { r: 32, g: 36, b: 46, alpha: 1 };
 
 const overrides = readJson(path.join(ROOT, "data/overrides.json"), {});
 const filter = process.argv[2]?.toLowerCase();
@@ -112,7 +111,8 @@ async function buildSheet(texturePaths) {
 }
 
 // Split the sheet into a GRID x GRID set of cells and reveal them in a seeded order
-// until each hint shows its share of the non-transparent pixels.
+// until each hint shows its share of the non-transparent pixels. Hidden cells are erased
+// to full transparency, so nothing about them (colour, shape or position) leaks.
 async function buildHints(sheet, width, height, seed) {
   const { data } = await sharp(sheet).raw().toBuffer({ resolveWithObject: true });
   const cells = [];
@@ -140,14 +140,15 @@ async function buildHints(sheet, width, height, seed) {
       shown += c.filled;
     }
     const hidden = cells.filter((c) => !revealed.has(c));
-    const covers = await Promise.all(
+    const erasers = await Promise.all(
       hidden.map(async (c) => ({
-        input: await sharp({ create: { width: c.w, height: c.h, channels: 4, background: HIDDEN } }).png().toBuffer(),
+        input: await sharp({ create: { width: c.w, height: c.h, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 1 } } }).png().toBuffer(),
         left: c.x0,
         top: c.y0,
+        blend: "dest-out",
       })),
     );
-    hints.push({ png: await sharp(sheet).composite(covers).png().toBuffer(), share: shown / total });
+    hints.push({ png: await sharp(sheet).composite(erasers).png().toBuffer(), share: shown / total });
   }
   return hints;
 }

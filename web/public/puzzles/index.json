@@ -6,6 +6,7 @@
     "category": "Playable Characters",
     "name": "Sonic",
     "credit": "divx2k60",
+    "sourceUrl": null,
     "textureCount": 9,
     "sheet": {
       "width": 422,
@@ -19,6 +20,7 @@
     "category": "Playable Characters",
     "name": "Mario",
     "credit": null,
+    "sourceUrl": null,
     "textureCount": 5,
     "sheet": {
       "width": 382,
@@ -32,6 +34,7 @@
     "category": "Playable Characters",
     "name": "Link",
     "credit": null,
+    "sourceUrl": null,
     "textureCount": 5,
     "sheet": {
       "width": 301,
