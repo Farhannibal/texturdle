@@ -154,17 +154,17 @@
     }
   },
   {
-    "id": "the-simpsons-game-bart",
-    "platform": "Wii",
-    "game": "The Simpsons Game",
+    "id": "the-simpsons-hit-run-bart",
+    "platform": "PC / Computer",
+    "game": "The Simpsons: Hit & Run",
     "category": "Playable Characters",
     "name": "Bart",
     "credit": null,
     "sourceUrl": null,
-    "textureCount": 1,
+    "textureCount": 2,
     "sheet": {
-      "width": 152,
-      "height": 136
+      "width": 215,
+      "height": 268
     }
   }
 ]

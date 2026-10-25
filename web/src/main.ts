@@ -1,9 +1,10 @@
 import "./style.css";
 import { buildCatalog, gameId, search, type Game } from "./catalog";
 import {
-  MAX_GUESSES, STAGES, dailyPuzzle, msUntilNext, newGame, puzzleNumber, shareText, submitGuess, unlockedStage,
+  MAX_GUESSES, MODEL_STAGE, STAGES, dailyPuzzle, msUntilNext, newGame, puzzleNumber, shareText, submitGuess, unlockedStage,
   type GameState, type Puzzle,
 } from "./game";
+import { confetti, isMuted, setMuted, winSound } from "./celebrate";
 import { getGame, saveGame, stats } from "./storage";
 import type { Viewer } from "./viewer";
 
@@ -69,7 +70,7 @@ const viewerReady: Promise<Viewer | null> = import("./viewer")
 
 /** `animate` spins the current hint into the next one (used after a guess, not for tab clicks). */
 function showInFrame(n: number, animate = false) {
-  const isModel = n === 4;
+  const isModel = n === MODEL_STAGE;
   const url = isModel ? `/puzzles/${puzzle.id}/model.glb` : `/puzzles/${puzzle.id}/hint${n}.png`;
   $("#frame").setAttribute("aria-label", `${STAGES[n - 1].hint} from today's model`);
   frameTip.hidden = true;
@@ -180,6 +181,10 @@ function play(game: Game | null) {
   input.value = "";
   submit.disabled = true;
   render(true);
+  if (state.status === "won") {
+    winSound();
+    confetti($("#frame").getBoundingClientRect());
+  }
   if (state.status !== "playing") $("#result").scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
@@ -276,6 +281,17 @@ for (const [btn, dlg] of [["#open-help", "#help"], ["#open-stats", "#stats"]] as
     $<HTMLDialogElement>(dlg).showModal();
   };
 }
+const soundBtn = $<HTMLButtonElement>("#toggle-sound");
+const renderSound = () => {
+  const muted = isMuted();
+  soundBtn.setAttribute("aria-pressed", String(!muted));
+  soundBtn.setAttribute("aria-label", muted ? "Turn sound on" : "Turn sound off");
+  $("#icon-sound-on").toggleAttribute("hidden", muted);
+  $("#icon-sound-off").toggleAttribute("hidden", !muted);
+};
+soundBtn.onclick = () => (setMuted(!isMuted()), renderSound());
+renderSound();
+
 document.querySelectorAll<HTMLButtonElement>("[data-close]").forEach((b) => (b.onclick = () => b.closest("dialog")!.close()));
 
 // ---- Dev tools: jump to any puzzle --------------------------------------------

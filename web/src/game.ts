@@ -25,19 +25,21 @@ export interface GameState {
   status: "playing" | "won" | "lost";
 }
 
-export const MAX_GUESSES = 4;
-
-// Stage 1-3 show textures (25%, 75%, 100%); stage 4 shows the model.
+// Stages 1-4 show textures (10%, 30%, 50%, 100%); the last stage shows the model.
 export const STAGES = [
-  { label: "25%", hint: "A quarter of the textures" },
-  { label: "75%", hint: "Three quarters of the textures" },
+  { label: "10%", hint: "A tenth of the textures" },
+  { label: "30%", hint: "Almost a third of the textures" },
+  { label: "50%", hint: "Half of the textures" },
   { label: "100%", hint: "Every texture on the model" },
   { label: "Model", hint: "The full 3D model" },
 ];
 
+export const MAX_GUESSES = STAGES.length;
+export const MODEL_STAGE = STAGES.length;
+
 export const newGame = (puzzleId: string): GameState => ({ puzzleId, guesses: [], status: "playing" });
 
-/** The furthest stage the player has unlocked (1-4). Finished games unlock everything. */
+/** The furthest stage the player has unlocked (1 to MAX_GUESSES). Finished games unlock everything. */
 export const unlockedStage = (s: GameState) => (s.status === "playing" ? Math.min(s.guesses.length + 1, MAX_GUESSES) : MAX_GUESSES);
 
 export function submitGuess(state: GameState, puzzle: Puzzle, answerId: string, game: Game | null): GameState {

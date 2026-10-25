@@ -24,9 +24,10 @@ const BLENDER = process.env.BLENDER ?? "C:/Program Files/Blender Foundation/Blen
 const MODEL_EXTS = [".dae", ".obj", ".fbx", ".glb", ".gltf"];
 const IMAGE_EXTS = [".png", ".jpg", ".jpeg", ".tga", ".bmp"];
 
-// Hint 1 shows ~25% of the texture pixels, hint 2 ~75% (always including hint 1's area).
-const GRID = 6;
-const REVEAL = [0.25, 0.75];
+// Hints 1-3 show ~10%, ~30% and ~50% of the texture pixels, each including the last one's
+// area; hint 4 is the full sheet. An 8x8 grid keeps the small first step close to 10%.
+const GRID = 8;
+const REVEAL = [0.1, 0.3, 0.5];
 const MIN_TILE = 96; // tiny textures are scaled up by whole multiples so they stay readable
 const MAX_TILE = 512; // modern high-res textures are scaled down so the sheet stays a sensible size
 const PAD = 4;
@@ -199,9 +200,8 @@ async function buildPuzzle(zipFile) {
 
   const { sheet, width, height } = await buildSheet(textures);
   const hints = await buildHints(sheet, width, height, id);
-  fs.writeFileSync(path.join(out, "hint1.png"), hints[0].png);
-  fs.writeFileSync(path.join(out, "hint2.png"), hints[1].png);
-  fs.writeFileSync(path.join(out, "hint3.png"), sheet);
+  hints.forEach((h, i) => fs.writeFileSync(path.join(out, `hint${i + 1}.png`), h.png));
+  fs.writeFileSync(path.join(out, `hint${hints.length + 1}.png`), sheet);
   console.log(`  reveal   ${hints.map((h) => Math.round(h.share * 100) + "%").join(" → ")} → 100%`);
 
   return {
@@ -226,6 +226,25 @@ for (const zip of zips) {
   } catch (err) {
     failed++;
     console.error(`  ✗ ${path.basename(zip)}: ${err.message}`);
+  }
+}
+// A full build also drops puzzles whose zip has been removed from data/modelzipped.
+if (!filter) {
+  const live = new Set(
+    zips.flatMap((z) => {
+      try {
+        const i = parseZipName(z);
+        return [slugify(`${i.game}-${i.name}`)];
+      } catch {
+        return [];
+      }
+    }),
+  );
+  for (const id of existing.keys()) {
+    if (live.has(id)) continue;
+    existing.delete(id);
+    fs.rmSync(path.join(OUT, id), { recursive: true, force: true });
+    console.log(`\n▸ ${id}\n  removed  its zip is no longer in data/modelzipped`);
   }
 }
 fs.mkdirSync(OUT, { recursive: true });

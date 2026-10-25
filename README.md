@@ -1,11 +1,12 @@
 # Texturdle
 
-A daily game: guess which video game a 3D model comes from. Four guesses, and each miss reveals more:
+A daily game: guess which video game a 3D model comes from. Five guesses, and each miss reveals more:
 
-1. 25% of the model's textures
-2. 75% of the textures
-3. All of the textures
-4. The textured 3D model
+1. 10% of the model's textures
+2. 30% of the textures
+3. 50% of the textures
+4. All of the textures
+5. The textured 3D model
 
 ## Run it locally
 
@@ -46,7 +47,7 @@ Set `BLENDER=<path to blender.exe>` if Blender 4.3 isn't in the default install 
 
 - `pipeline/build.mjs` unzips each model, runs `pipeline/blender_export.py` in headless
   Blender to export `model.glb` and list the textures the model uses, packs those textures into
-  one sheet, and cuts the 25% and 75% hints from it with a seeded grid mask. Output goes to
+  one sheet, and cuts the 10%, 30% and 50% hints from it with a seeded grid mask. Output goes to
   `web/public/puzzles/<id>/` plus `index.json`.
 - `web/src/game.ts` holds the game rules, daily schedule (midnight UTC) and share text.
 - `web/src/catalog.ts` is the list of games for the autocomplete. Puzzle answers are merged in
