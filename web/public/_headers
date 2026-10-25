@@ -13,3 +13,11 @@
 /puzzles/index.json
   ! Cache-Control
   Cache-Control: public, max-age=0, must-revalidate
+
+# Day-to-puzzle list; changes when new puzzles are scheduled.
+/schedule.json
+  Cache-Control: public, max-age=300
+
+# Game list for guesses; rebuilt every few months.
+/games.json
+  Cache-Control: public, max-age=86400

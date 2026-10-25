@@ -8,8 +8,9 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "deploy": "npm run build && node pipeline/publish-filter.mjs && wrangler deploy",
-    "games": "node pipeline/games.mjs"
+    "deploy": "node pipeline/schedule.mjs && npm run build && node pipeline/publish-filter.mjs && wrangler deploy",
+    "games": "node pipeline/games.mjs",
+    "schedule": "node pipeline/schedule.mjs"
   },
   "devDependencies": {
     "@types/node": "^20.17.6",

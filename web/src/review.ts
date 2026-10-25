@@ -18,6 +18,7 @@ interface Row {
   rotateX: number;
   hasPreview: boolean;
   builtAt: string;
+  sourceUrl?: string | null;
 }
 
 type Filter = "todo" | "flagged" | "approved" | "rejected" | "failed" | "all";
@@ -186,6 +187,13 @@ function card(r: Row, isFocused: boolean) {
     btn(r.status === "rejected" ? "Undo reject" : "Reject", "rv-reject", () => decide(r, { status: r.status === "rejected" ? null : "rejected" })),
     btn("Rotate", "rv-rotate", () => decide(r, { rotateX: ROTATIONS[(ROTATIONS.indexOf(r.rotateX) + 1) % ROTATIONS.length] })),
   );
+  if (r.sourceUrl) {
+    const page = h("a", "rv-play", "Models Resource");
+    page.href = r.sourceUrl;
+    page.target = "_blank";
+    page.rel = "noopener";
+    actions.append(page);
+  }
   if (r.built) {
     const play = h("a", "rv-play", "Play");
     play.href = `/?practice=${r.id}`;

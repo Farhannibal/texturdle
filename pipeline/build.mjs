@@ -47,6 +47,21 @@ const overrides = readJson(path.join(ROOT, "data/overrides.json"), {});
 const gameNames = readJson(path.join(ROOT, "data/game-names.json"), {});
 const normalize = (s) => s.toLowerCase().normalize("NFKD").replace(/\p{M}/gu, "").replace(/&/g, "and").replace(/[^\p{L}\p{N}]+/gu, " ").trim(); // same as web/src/catalog.ts
 const gameList = readJson(path.join(ROOT, "web/public/games.json"), null);
+
+// Each zip's Models Resource page. Browsers on Windows record the page a file was downloaded
+// from in a hidden "Zone.Identifier" note on the file; copying the zip elsewhere usually strips
+// it, so every address found is also saved to data/sources.json (committed) and kept from then on.
+const SOURCES = path.join(ROOT, "data/sources.json");
+const sources = readJson(SOURCES, {});
+
+function downloadPage(zipFile) {
+  try {
+    const note = fs.readFileSync(`${zipFile}:Zone.Identifier`, "utf8");
+    return note.match(/ReferrerUrl=(https:\/\/models\.spriters-resource\.com\/\S+\/asset\/\d+\/?)/)?.[1] ?? null;
+  } catch {
+    return null; // not on NTFS, or the note was stripped by copying
+  }
+}
 const knownGames = gameList && new Set(gameList.games.flatMap(([title, , aliases]) => [title, ...aliases].map(normalize)));
 const cliArgs = process.argv.slice(2);
 const onlyNew = cliArgs.includes("--new");
@@ -110,7 +125,8 @@ function findCredit(files) {
   for (const f of files) {
     if (!f.toLowerCase().endsWith(".txt") || /^materials/i.test(path.basename(f))) continue;
     const m = fs.readFileSync(f, "utf8").match(CREDIT);
-    const name = m?.[1].split(",")[0].replace(/\.\s*$/, "").trim();
+    // Keep the name only: drop ", no credit needed", trailing dashes and full stops.
+    const name = m?.[1].split(",")[0].replace(/[\s.\-–—:]+$/, "").trim();
     if (name) return name;
   }
   return null;
@@ -310,7 +326,7 @@ async function buildPuzzle(zipFile) {
     id,
     ...info,
     credit: override.credit ?? findCredit(files),
-    sourceUrl: override.sourceUrl ?? null,
+    sourceUrl: override.sourceUrl ?? sources[id] ?? null,
     // Other titles that also count as correct (e.g. a regional release listed separately).
     ...(override.accept?.length ? { accept: override.accept } : {}),
     textureCount: textures.length,
@@ -324,6 +340,17 @@ const existing = new Map(readJson(index, []).map((p) => [p.id, p]));
 const reportFile = path.join(REVIEW, "report.json");
 const review = readJson(reportFile, {});
 let failed = 0;
+// Record download pages for every zip first (cheap), so links fill in even for zips this
+// run doesn't rebuild.
+for (const zip of zips) {
+  try {
+    const info = parseZipName(zip);
+    const page = downloadPage(zip);
+    if (page) sources[slugify(`${info.game}-${info.name}`)] = page;
+  } catch {
+    // Unparseable name; the build loop reports it.
+  }
+}
 for (const zip of zips) {
   try {
     const puzzle = await buildPuzzle(zip);
@@ -365,6 +392,21 @@ if (!filter) {
   for (const id of Object.keys(review)) if (!live.has(id)) delete review[id];
 }
 fs.mkdirSync(REVIEW, { recursive: true });
+// Fill links (and credits set in overrides) into puzzles built before they were known, and
+// onto the review cards, without rebuilding the models.
+for (const [id, p] of existing) {
+  const url = overrides[id]?.sourceUrl ?? sources[id] ?? null;
+  const credit = overrides[id]?.credit ?? p.credit?.replace(/[\s.\-–—:]+$/, "") ?? null;
+  if ((url && p.sourceUrl !== url) || credit !== p.credit) existing.set(id, { ...p, sourceUrl: url ?? p.sourceUrl, credit });
+}
+for (const [id, r] of Object.entries(review)) {
+  const url = overrides[id]?.sourceUrl ?? sources[id] ?? null;
+  r.sourceUrl = url;
+  const missing = "No Models Resource link; add \"sourceUrl\" in data/overrides.json";
+  r.flags = (r.flags ?? []).filter((f) => f !== missing);
+  if (!url && !r.error) r.flags.push(missing);
+}
+fs.writeFileSync(SOURCES, JSON.stringify(Object.fromEntries(Object.entries(sources).sort()), null, 2) + "\n");
 fs.writeFileSync(reportFile, JSON.stringify(review, null, 2));
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(index, JSON.stringify([...existing.values()].sort((a, b) => a.id.localeCompare(b.id)), null, 2));

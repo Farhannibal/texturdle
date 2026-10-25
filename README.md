@@ -41,6 +41,10 @@ review decision, credit and fix, so the puzzles can be rebuilt from the zips at 
 ## Adding a batch of puzzles
 
 1. Download zips from The Models Resource into `data/modelzipped/`, keeping their filenames.
+   Each puzzle links back to its Models Resource page automatically: Windows records the
+   page a file was downloaded from, and the pipeline saves it to `data/sources.json`. Download
+   in the browser straight into this folder (copying zips via USB or cloud drives strips that
+   record); for a zip without it, set `"sourceUrl"` in `data/overrides.json`.
 2. Run `npm run puzzles -- --new` to build only the zips that haven't been built yet.
 3. With `npm run dev` running, open **http://localhost:5173/review.html**. It lists every
    model with a preview render, its texture sheet, stats and warning flags (flagged first).

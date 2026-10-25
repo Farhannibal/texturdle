@@ -2,8 +2,8 @@ import "./style.css";
 import { gameId, loadCatalog, search, type Game } from "./catalog";
 import {
   MAX_GUESSES, MODEL_STAGE, STAGES, dailyPuzzle, msUntilNext, newGame, puzzleDate, puzzleNumber, shareText, submitGuess,
-  unlockedStage,
-  type GameState, type Puzzle,
+  unlockedStage, useSchedule,
+  type GameState, type Puzzle, type Schedule,
 } from "./game";
 import { confetti, isMuted, setMuted, winSound } from "./celebrate";
 import { dayRecord, getGame, saveGame, stats } from "./storage";
@@ -17,7 +17,11 @@ const h = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: s
   return el;
 };
 
-const puzzles: Puzzle[] = await fetch("/puzzles/index.json").then((r) => r.json());
+const [puzzles, schedule]: [Puzzle[], Schedule | null] = await Promise.all([
+  fetch("/puzzles/index.json").then((r) => r.json()),
+  fetch("/schedule.json").then((r) => (r.ok ? r.json() : null)).catch(() => null),
+]);
+useSchedule(schedule);
 const catalog = await loadCatalog(puzzles.map((p) => ({ title: p.game, platform: p.platform })));
 const params = new URLSearchParams(location.search);
 // In dev, ?today=<n> pretends it's day n so the archive can be tested with more history.

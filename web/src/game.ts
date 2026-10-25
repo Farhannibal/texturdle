@@ -60,19 +60,42 @@ export function submitGuess(state: GameState, puzzle: Puzzle, answerIds: string[
 
 // ---- Daily schedule -------------------------------------------------------
 
-/** Day 1 of Texturdle. Puzzles roll over at midnight UTC. */
-const LAUNCH = Date.UTC(2026, 9, 22);
+/** The day-by-day puzzle list, from public/schedule.json (maintained by `npm run schedule`). */
+export interface Schedule {
+  /** Day 1, as a UTC date (YYYY-MM-DD). Puzzles roll over at midnight UTC. */
+  launch: string;
+  /** Puzzle id for each day; day n is days[n - 1]. Loops when it runs out. */
+  days: string[];
+}
+
 const DAY = 86_400_000;
+let launch = Date.UTC(2026, 8, 17);
+let days: string[] = [];
 
-export const puzzleNumber = (now = Date.now()) => Math.floor((now - LAUNCH) / DAY) + 1;
-export const msUntilNext = (now = Date.now()) => DAY - ((now - LAUNCH) % DAY);
+/** Use the published schedule. Call before anything below. */
+export function useSchedule(s: Schedule | null) {
+  if (!s) return;
+  const t = Date.parse(`${s.launch}T00:00:00Z`);
+  if (Number.isFinite(t)) launch = t;
+  days = s.days ?? [];
+}
+
+export const puzzleNumber = (now = Date.now()) => Math.floor((now - launch) / DAY) + 1;
+export const msUntilNext = (now = Date.now()) => DAY - ((now - launch) % DAY);
 /** The UTC calendar day puzzle `n` was (or will be) the daily puzzle. */
-export const puzzleDate = (n: number) => new Date(LAUNCH + (n - 1) * DAY);
+export const puzzleDate = (n: number) => new Date(launch + (n - 1) * DAY);
 
-/** A fixed shuffle of puzzle ids so the daily order isn't alphabetical. */
+const wrap = (n: number, len: number) => (((n - 1) % len) + len) % len;
+
+/** Day n's puzzle from the schedule, looping when it runs out. If the scheduled puzzle isn't
+ *  available (or there's no schedule), falls back to a fixed shuffle of all puzzles. */
 export function dailyPuzzle(puzzles: Puzzle[], n: number): Puzzle {
+  if (days.length) {
+    const p = puzzles.find((x) => x.id === days[wrap(n, days.length)]);
+    if (p) return p;
+  }
   const order = [...puzzles].sort((a, b) => hash(a.id) - hash(b.id));
-  return order[(((n - 1) % order.length) + order.length) % order.length];
+  return order[wrap(n, order.length)];
 }
 
 function hash(s: string) {
