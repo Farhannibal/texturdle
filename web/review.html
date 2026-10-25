@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Texturdle Review</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,700;1,700&family=Figtree:wght@400;500;600;700&display=swap" />
+    <script type="module" src="/src/review.ts"></script>
+  </head>
+  <body class="review-page">
+    <header class="rv-head">
+      <div>
+        <h1>Puzzle review</h1>
+        <p class="muted" id="rv-summary">Loading the build report…</p>
+      </div>
+      <nav class="rv-filters" id="rv-filters" aria-label="Filter models"></nav>
+    </header>
+    <p class="rv-help muted">
+      <kbd>A</kbd> approve · <kbd>R</kbd> reject · <kbd>T</kbd> rotate · <kbd>J</kbd>/<kbd>K</kbd> next/previous · <kbd>P</kbd> play.
+      Rejected models leave the game straight away. After rotating or un-rejecting, run
+      <code>npm run puzzles -- --new</code> (or the model's name) to rebuild.
+    </p>
+    <section class="rv-viewer" aria-label="Selected model">
+      <div class="rv-stage">
+        <div class="rv-3d" id="rv-3d"></div>
+        <p class="rv-stage-status" id="rv-stage-status">Select a model to load it here.</p>
+      </div>
+      <div class="rv-viewer-info">
+        <p class="rv-kicker">Selected model · as players will see it</p>
+        <h2 id="rv-sel-title">Nothing selected</h2>
+        <p class="muted" id="rv-sel-sub"></p>
+        <p class="muted rv-sel-tip">Drag to rotate · scroll to zoom · double-click to reset. Click a card or use J/K to switch.</p>
+      </div>
+    </section>
+    <main class="rv-grid" id="rv-grid"></main>
+  </body>
+</html>

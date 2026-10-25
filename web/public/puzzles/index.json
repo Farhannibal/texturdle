@@ -1,5 +1,75 @@
 [
   {
+    "id": "banjo-tooie-mumbo-jumbo",
+    "platform": "Nintendo 64",
+    "game": "Banjo-Tooie",
+    "category": "Playable Characters",
+    "name": "Mumbo Jumbo",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 2,
+    "sheet": {
+      "width": 840,
+      "height": 1036
+    }
+  },
+  {
+    "id": "bubsy-3d-bubsy",
+    "platform": "PlayStation",
+    "game": "Bubsy 3D",
+    "category": "Playable Characters",
+    "name": "Bubsy",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 2,
+    "sheet": {
+      "width": 193,
+      "height": 268
+    }
+  },
+  {
+    "id": "chrono-cross-funguy",
+    "platform": "PlayStation",
+    "game": "Chrono Cross",
+    "category": "Playable Characters (Battle)",
+    "name": "Funguy",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 1,
+    "sheet": {
+      "width": 214,
+      "height": 264
+    }
+  },
+  {
+    "id": "conker-s-bad-fur-day-conker-cutscene",
+    "platform": "Nintendo 64",
+    "game": "Conker's Bad Fur Day",
+    "category": "Playable Characters",
+    "name": "Conker (Cutscene)",
+    "credit": "Croissant [https://www.vg-resource.com/user-50801.html]",
+    "sourceUrl": null,
+    "textureCount": 20,
+    "sheet": {
+      "width": 485,
+      "height": 472
+    }
+  },
+  {
+    "id": "family-guy-back-to-the-multiverse-peter-gold-suit",
+    "platform": "PC / Computer",
+    "game": "Family Guy: Back to the Multiverse",
+    "category": "Playable Characters",
+    "name": "Peter (Gold Suit)",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 3,
+    "sheet": {
+      "width": 634,
+      "height": 592
+    }
+  },
+  {
     "id": "final-fantasy-ix-zidane",
     "platform": "PC / Computer",
     "game": "Final Fantasy IX",
@@ -10,6 +80,20 @@
     "textureCount": 2,
     "sheet": {
       "width": 840,
+      "height": 1036
+    }
+  },
+  {
+    "id": "hello-neighbor-neighbor-theodore-peterson",
+    "platform": "PC / Computer",
+    "game": "Hello Neighbor",
+    "category": "Characters",
+    "name": "Neighbor (Theodore Peterson)",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 4,
+    "sheet": {
+      "width": 1187,
       "height": 1036
     }
   },
@@ -28,17 +112,87 @@
     }
   },
   {
-    "id": "mario-party-2-mario",
-    "platform": "Nintendo 64",
-    "game": "Mario Party 2",
-    "category": "Playable Characters",
-    "name": "Mario",
+    "id": "mario-party-island-tour-hammer-bro-fire-bro",
+    "platform": "3DS",
+    "game": "Mario Party: Island Tour",
+    "category": "Other Characters",
+    "name": "Hammer Bro / Fire Bro",
     "credit": null,
-    "sourceUrl": "https://models.spriters-resource.com/nintendo_64/marioparty2/asset/298013/",
-    "textureCount": 4,
+    "sourceUrl": null,
+    "textureCount": 2,
     "sheet": {
-      "width": 285,
-      "height": 268
+      "width": 336,
+      "height": 332
+    }
+  },
+  {
+    "id": "mario-rabbids-sparks-of-hope-rabbid-mario",
+    "platform": "Nintendo Switch",
+    "game": "Mario + Rabbids Sparks of Hope",
+    "category": "Playable Characters",
+    "name": "Rabbid Mario",
+    "credit": "djfox11",
+    "sourceUrl": null,
+    "textureCount": 7,
+    "sheet": {
+      "width": 1570,
+      "height": 1552
+    }
+  },
+  {
+    "id": "mario-rabbids-sparks-of-hope-rabbid-rosalina",
+    "platform": "Nintendo Switch",
+    "game": "Mario + Rabbids Sparks of Hope",
+    "category": "Playable Characters",
+    "name": "Rabbid Rosalina",
+    "credit": "djfox11",
+    "sourceUrl": null,
+    "textureCount": 7,
+    "sheet": {
+      "width": 1570,
+      "height": 1552
+    }
+  },
+  {
+    "id": "marvel-vs-capcom-3-spider-man",
+    "platform": "Xbox 360",
+    "game": "Marvel vs. Capcom 3",
+    "category": "Characters (Marvel)",
+    "name": "Spider-Man",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 2,
+    "sheet": {
+      "width": 840,
+      "height": 1036
+    }
+  },
+  {
+    "id": "metal-gear-solid-solid-snake-shirtless",
+    "platform": "PlayStation",
+    "game": "Metal Gear Solid",
+    "category": "Playable Characters",
+    "name": "Solid Snake (Shirtless)",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 28,
+    "sheet": {
+      "width": 559,
+      "height": 531
+    }
+  },
+  {
+    "id": "persona-5-haru-okumura",
+    "platform": "PlayStation 4",
+    "game": "Persona 5",
+    "category": "Playable Characters",
+    "name": "Haru Okumura",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 3,
+    "sheet": {
+      "width": 1028,
+      "height": 1552
     }
   },
   {
@@ -70,6 +224,76 @@
     }
   },
   {
+    "id": "pokemon-x-y-0009-blastoise",
+    "platform": "3DS",
+    "game": "Pokemon X / Y",
+    "category": "Pokemon (1st Generation)",
+    "name": "#0009 Blastoise",
+    "credit": "Random Talking Bush",
+    "sourceUrl": null,
+    "textureCount": 4,
+    "sheet": {
+      "width": 684,
+      "height": 784
+    }
+  },
+  {
+    "id": "princess-peach-showtime-swordfighter-peach",
+    "platform": "Nintendo Switch",
+    "game": "Princess Peach: Showtime!",
+    "category": "Playable Characters",
+    "name": "Swordfighter Peach",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 3,
+    "sheet": {
+      "width": 1028,
+      "height": 1552
+    }
+  },
+  {
+    "id": "project-zero-2-wii-edition-mio-amakura-mario",
+    "platform": "Wii",
+    "game": "Project Zero 2: Wii Edition",
+    "category": "Playable Characters",
+    "name": "Mio Amakura (Mario)",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 6,
+    "sheet": {
+      "width": 959,
+      "height": 1296
+    }
+  },
+  {
+    "id": "resident-evil-2-leon",
+    "platform": "PlayStation",
+    "game": "Resident Evil 2",
+    "category": "Playable Characters",
+    "name": "Leon",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 1,
+    "sheet": {
+      "width": 392,
+      "height": 264
+    }
+  },
+  {
+    "id": "resident-evil-naked-zombie",
+    "platform": "GameCube",
+    "game": "Resident Evil",
+    "category": "Enemies",
+    "name": "Naked Zombie",
+    "credit": "Roxas358",
+    "sourceUrl": null,
+    "textureCount": 2,
+    "sheet": {
+      "width": 665,
+      "height": 780
+    }
+  },
+  {
     "id": "silent-hill-2-pyramid-head",
     "platform": "PlayStation 2",
     "game": "Silent Hill 2",
@@ -84,6 +308,20 @@
     }
   },
   {
+    "id": "silent-hill-harry-mason",
+    "platform": "PlayStation",
+    "game": "Silent Hill",
+    "category": "Characters",
+    "name": "Harry Mason",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 1,
+    "sheet": {
+      "width": 264,
+      "height": 200
+    }
+  },
+  {
     "id": "sonic-adventure-2-battle-sonic",
     "platform": "GameCube",
     "game": "Sonic Adventure 2: Battle",
@@ -95,6 +333,90 @@
     "sheet": {
       "width": 422,
       "height": 368
+    }
+  },
+  {
+    "id": "soulcalibur-iv-ivy",
+    "platform": "Xbox 360",
+    "game": "Soulcalibur IV",
+    "category": "Characters",
+    "name": "Ivy",
+    "credit": "Shadowth117 with SPD_EX. No credit needed",
+    "sourceUrl": null,
+    "textureCount": 32,
+    "sheet": {
+      "width": 2284,
+      "height": 1944
+    }
+  },
+  {
+    "id": "south-park-cartman",
+    "platform": "Nintendo 64",
+    "game": "South Park",
+    "category": "Playable Characters",
+    "name": "Cartman",
+    "credit": "Hell Inspector under the submitter name \"Hawkodile\"",
+    "sourceUrl": null,
+    "textureCount": 4,
+    "sheet": {
+      "width": 245,
+      "height": 272
+    }
+  },
+  {
+    "id": "spongebob-squarepants-creature-from-the-krusty-krab-spongebob-speed-demon",
+    "platform": "Wii",
+    "game": "SpongeBob SquarePants: Creature from The Krusty Krab",
+    "category": "Playable Characters",
+    "name": "SpongeBob (Speed Demon)",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 3,
+    "sheet": {
+      "width": 369,
+      "height": 396
+    }
+  },
+  {
+    "id": "spyro-the-dragon-spyro",
+    "platform": "PlayStation",
+    "game": "Spyro the Dragon",
+    "category": "Playable Characters",
+    "name": "Spyro",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 1,
+    "sheet": {
+      "width": 264,
+      "height": 200
+    }
+  },
+  {
+    "id": "super-mario-64-peach-s-castle-exterior",
+    "platform": "Nintendo 64",
+    "game": "Super Mario 64",
+    "category": "Locations",
+    "name": "Peach's Castle Exterior",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 24,
+    "sheet": {
+      "width": 539,
+      "height": 504
+    }
+  },
+  {
+    "id": "super-mario-64-piranha-plant",
+    "platform": "Nintendo 64",
+    "game": "Super Mario 64",
+    "category": "Enemies & Bosses",
+    "name": "Piranha Plant",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 8,
+    "sheet": {
+      "width": 304,
+      "height": 336
     }
   },
   {
@@ -126,17 +448,157 @@
     }
   },
   {
-    "id": "super-smash-bros-samus",
-    "platform": "Nintendo 64",
-    "game": "Super Smash Bros.",
+    "id": "super-smash-bros-melee-luigi",
+    "platform": "GameCube",
+    "game": "Super Smash Bros. Melee",
     "category": "Fighters",
-    "name": "Samus",
+    "name": "Luigi",
     "credit": null,
-    "sourceUrl": "https://models.spriters-resource.com/nintendo_64/ssb/asset/294310/",
-    "textureCount": 18,
+    "sourceUrl": null,
+    "textureCount": 32,
     "sheet": {
-      "width": 489,
-      "height": 504
+      "width": 841,
+      "height": 792
+    }
+  },
+  {
+    "id": "super-smash-bros-ultimate-fox",
+    "platform": "Nintendo Switch",
+    "game": "Super Smash Bros. Ultimate",
+    "category": "Fighters",
+    "name": "Fox",
+    "credit": "Centrixe at The Models Resource",
+    "sourceUrl": null,
+    "textureCount": 9,
+    "sheet": {
+      "width": 1386,
+      "height": 1552
+    }
+  },
+  {
+    "id": "super-smash-bros-ultimate-zero-suit-samus",
+    "platform": "Nintendo Switch",
+    "game": "Super Smash Bros. Ultimate",
+    "category": "Fighters",
+    "name": "Zero Suit Samus",
+    "credit": "Centrixe at The Models Resource",
+    "sourceUrl": null,
+    "textureCount": 10,
+    "sheet": {
+      "width": 1485,
+      "height": 1700
+    }
+  },
+  {
+    "id": "team-fortress-2-heavy",
+    "platform": "PC / Computer",
+    "game": "Team Fortress 2",
+    "category": "Characters",
+    "name": "Heavy",
+    "credit": "Slipsy! ---",
+    "sourceUrl": null,
+    "textureCount": 3,
+    "sheet": {
+      "width": 787,
+      "height": 780
+    }
+  },
+  {
+    "id": "team-fortress-2-spy",
+    "platform": "PC / Computer",
+    "game": "Team Fortress 2",
+    "category": "Characters",
+    "name": "Spy",
+    "credit": "Slipsy! ---",
+    "sourceUrl": null,
+    "textureCount": 4,
+    "sheet": {
+      "width": 842,
+      "height": 1040
+    }
+  },
+  {
+    "id": "the-legend-of-zelda-breath-of-the-wild-master-sword",
+    "platform": "Wii U",
+    "game": "The Legend of Zelda: Breath of the Wild",
+    "category": "Weapons",
+    "name": "Master Sword",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 2,
+    "sheet": {
+      "width": 336,
+      "height": 396
+    }
+  },
+  {
+    "id": "the-legend-of-zelda-link-s-awakening-link",
+    "platform": "Nintendo Switch",
+    "game": "The Legend of Zelda: Link's Awakening",
+    "category": "Playable Characters",
+    "name": "Link",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 15,
+    "sheet": {
+      "width": 1504,
+      "height": 1556
+    }
+  },
+  {
+    "id": "the-legend-of-zelda-ocarina-of-time-temple-of-time",
+    "platform": "Nintendo 64",
+    "game": "The Legend of Zelda: Ocarina of Time",
+    "category": "Locations",
+    "name": "Temple of Time",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 35,
+    "sheet": {
+      "width": 660,
+      "height": 640
+    }
+  },
+  {
+    "id": "the-legend-of-zelda-phantom-hourglass-link",
+    "platform": "DS / DSi",
+    "game": "The Legend of Zelda: Phantom Hourglass",
+    "category": "Playable Characters",
+    "name": "Link",
+    "credit": "Lexou Duck",
+    "sourceUrl": null,
+    "textureCount": 10,
+    "sheet": {
+      "width": 321,
+      "height": 336
+    }
+  },
+  {
+    "id": "the-legend-of-zelda-skyward-sword-zelda-skyloft",
+    "platform": "Wii",
+    "game": "The Legend of Zelda: Skyward Sword",
+    "category": "Non-Playable Characters",
+    "name": "Zelda (Skyloft)",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 8,
+    "sheet": {
+      "width": 637,
+      "height": 656
+    }
+  },
+  {
+    "id": "the-legend-of-zelda-tears-of-the-kingdom-zelda-scientist",
+    "platform": "Nintendo Switch",
+    "game": "The Legend of Zelda: Tears of the Kingdom",
+    "category": "Non-Playable Characters",
+    "name": "Zelda (Scientist)",
+    "credit": "Qw2",
+    "sourceUrl": null,
+    "textureCount": 5,
+    "sheet": {
+      "width": 959,
+      "height": 1136
     }
   },
   {
@@ -154,17 +616,45 @@
     }
   },
   {
-    "id": "the-simpsons-hit-run-bart",
-    "platform": "PC / Computer",
-    "game": "The Simpsons: Hit & Run",
-    "category": "Playable Characters",
-    "name": "Bart",
-    "credit": "miotalbejita",
-    "sourceUrl": "https://models.spriters-resource.com/pc_computer/simpsonshitrun/asset/295263/",
-    "textureCount": 2,
+    "id": "the-legend-of-zelda-twilight-princess-hero-s-shade",
+    "platform": "GameCube",
+    "game": "The Legend of Zelda: Twilight Princess",
+    "category": "Non-Playable Characters",
+    "name": "Hero's Shade",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 4,
     "sheet": {
-      "width": 215,
-      "height": 268
+      "width": 551,
+      "height": 652
+    }
+  },
+  {
+    "id": "the-legend-of-zelda-twilight-princess-link-tunic",
+    "platform": "GameCube",
+    "game": "The Legend of Zelda: Twilight Princess",
+    "category": "Playable Characters",
+    "name": "Link (Tunic)",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 17,
+    "sheet": {
+      "width": 576,
+      "height": 532
+    }
+  },
+  {
+    "id": "zenless-zone-zero-hamburger",
+    "platform": "PC / Computer",
+    "game": "Zenless Zone Zero",
+    "category": "Objects",
+    "name": "Hamburger",
+    "credit": null,
+    "sourceUrl": null,
+    "textureCount": 1,
+    "sheet": {
+      "width": 594,
+      "height": 520
     }
   }
 ]

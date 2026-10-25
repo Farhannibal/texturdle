@@ -1,7 +1,12 @@
 // Turns every zip in data/modelzipped into a playable puzzle under web/public/puzzles.
 //
 //   npm run puzzles                 build every zip
+//   npm run puzzles -- --new        only zips that haven't been built yet
 //   npm run puzzles -- sonic        only zips whose slug contains "sonic"
+//
+// Every build also writes data/review/report.json and a preview render per model, which
+// the dev-only review page (/review.html) reads. Approving or rejecting there writes
+// "status" into data/overrides.json; a rejected model is treated like "skip".
 //
 // Zip names follow the Models Resource download pattern:
 //   "<Platform> - <Game> - <Category> - <Model>.zip"
@@ -32,8 +37,14 @@ const MIN_TILE = 96; // tiny textures are scaled up by whole multiples so they s
 const MAX_TILE = 512; // modern high-res textures are scaled down so the sheet stays a sensible size
 const PAD = 4;
 
+const REVIEW = path.join(ROOT, "data/review");
+const BLENDER_TIMEOUT_MS = 4 * 60 * 1000;
+
 const overrides = readJson(path.join(ROOT, "data/overrides.json"), {});
-const filter = process.argv[2]?.toLowerCase();
+const cliArgs = process.argv.slice(2);
+const onlyNew = cliArgs.includes("--new");
+const filter = cliArgs.find((a) => !a.startsWith("--"))?.toLowerCase();
+const isSkipped = (o) => o?.skip || o?.status === "rejected";
 
 function readJson(file, fallback) {
   return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : fallback;
@@ -69,12 +80,18 @@ function rng(seed) {
   };
 }
 
-function pickModel(files, override, dir) {
-  if (override?.model) return path.join(dir, override.model);
+// Alternate forms and spare parts that sometimes outweigh the main model.
+const VARIANT = /mega|gmax|gibs|lod\d|_lod|shadow|shd\b|multiplayer|effects?[\\/]|wpn|weapon/i;
+
+/** Model files to try, best first. */
+function modelCandidates(files, override, dir) {
+  if (override?.model) return [path.join(dir, override.model)];
   const models = files.filter((f) => MODEL_EXTS.includes(path.extname(f).toLowerCase()));
   if (!models.length) throw new Error("No supported model file (.dae/.obj/.fbx/.glb) in zip");
   // The main body is almost always the biggest file; extra parts (hands, hats) are smaller.
-  return models.sort((a, b) => fs.statSync(b).size - fs.statSync(a).size)[0];
+  // Variants (Mega forms, gibs, LODs, multiplayer recolours) go last.
+  const variant = (f) => Number(VARIANT.test(path.relative(dir, f)));
+  return models.sort((a, b) => variant(a) - variant(b) || fs.statSync(b).size - fs.statSync(a).size);
 }
 
 // Rippers credit themselves in a text file inside the zip, worded many ways:
@@ -165,7 +182,24 @@ async function buildHints(sheet, width, height, seed) {
     );
     hints.push({ png: await sharp(sheet).composite(erasers).png().toBuffer(), share: shown / total });
   }
-  return hints;
+  return { hints, fill: total / (width * height) };
+}
+
+/** Things worth a second look on the review page. None of them block a build. */
+function qualityFlags(info, used, textureCount, glbBytes, fill) {
+  const flags = [];
+  if (/location|course|stage|map|area|level|room|track|world/i.test(info.category)) flags.push("Location, not a character");
+  if (textureCount < 2) flags.push("Only one texture");
+  if (used.missing.length) flags.push(`${used.missing.length} texture file(s) missing`);
+  if (used.untexturedMaterials) flags.push(`${used.untexturedMaterials} untextured material(s), may render plain`);
+  if (used.triangles > 80_000) flags.push(`Heavy model (${Math.round(used.triangles / 1000)}k triangles)`);
+  if (glbBytes > 4e6) flags.push(`Large file (${(glbBytes / 1e6).toFixed(1)} MB)`);
+  const { width, depth, height } = used.size;
+  const biggest = Math.max(width, depth, height);
+  if (biggest > 5000 || biggest < 0.01) flags.push("Unusual scale");
+  if (depth > height * 1.3 && depth > width * 0.8) flags.push("May be lying down");
+  if (fill < 0.35) flags.push("Texture sheet is mostly empty space");
+  return flags;
 }
 
 async function buildPuzzle(zipFile) {
@@ -173,9 +207,10 @@ async function buildPuzzle(zipFile) {
   const id = slugify(`${info.game}-${info.name}`);
   if (filter && !id.includes(filter)) return null;
   const override = overrides[id] ?? {};
+  if (onlyNew && (isSkipped(override) || fs.existsSync(path.join(OUT, id, "model.glb")))) return null;
   console.log(`\n▸ ${id}`);
-  if (override.skip) {
-    console.log(`  skipped  ${override.reason ?? "marked skip in data/overrides.json"}`);
+  if (isSkipped(override)) {
+    console.log(`  skipped  ${override.reason ?? (override.status === "rejected" ? "rejected in review" : "marked skip in data/overrides.json")}`);
     fs.rmSync(path.join(OUT, id), { recursive: true, force: true });
     return { id, skipped: true };
   }
@@ -185,17 +220,51 @@ async function buildPuzzle(zipFile) {
   new AdmZip(zipFile).extractAllTo(raw, true);
   const files = walk(raw);
 
-  const model = pickModel(files, override, raw);
-  console.log(`  model    ${path.relative(raw, model)}`);
-
   const out = path.join(OUT, id);
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });
   const report = path.join(raw, "_textures.json");
-  execFileSync(BLENDER, ["-b", "--factory-startup", "-P", path.join(ROOT, "pipeline/blender_export.py"), "--", model, path.join(out, "model.glb"), report, String(override.rotateX ?? 0)], {
-    stdio: process.env.VERBOSE ? "inherit" : "pipe",
-  });
-  const used = readJson(report, { textures: [], missing: [] });
+  fs.mkdirSync(REVIEW, { recursive: true });
+  const glb = path.join(out, "model.glb");
+
+  const runBlender = (model) => {
+    try {
+      execFileSync(
+        BLENDER,
+        // --python-exit-code makes a crash in the script fail the run instead of exiting 0.
+        ["-b", "--factory-startup", "--python-exit-code", "1", "-P", path.join(ROOT, "pipeline/blender_export.py"), "--",
+          model, glb, report, String(override.rotateX ?? 0), path.join(REVIEW, `${id}.png`)],
+        { stdio: process.env.VERBOSE ? "inherit" : "pipe", timeout: BLENDER_TIMEOUT_MS },
+      );
+    } catch (err) {
+      if (err.code === "ETIMEDOUT") return `Blender took longer than ${BLENDER_TIMEOUT_MS / 60000} minutes`;
+      // Report the Python exception line rather than Blender's generic "script failed".
+      const lines = `${err.stdout ?? ""}\n${err.stderr ?? ""}`
+        .split("\n")
+        .map((l) => l.trim())
+        .filter((l) => /error|exception/i.test(l) && !/script failed/i.test(l));
+      return `Blender failed: ${lines.at(-1) ?? "unknown error"}`;
+    }
+    return fs.existsSync(glb) ? null : "Blender finished without writing a model";
+  };
+
+  // If a file won't import (old ASCII FBX, COLLADA with morph targets), fall back to the
+  // next candidate, up to four tries.
+  let model = null;
+  const candidates = modelCandidates(files, override, raw);
+  const errors = [];
+  for (const candidate of candidates.slice(0, 4)) {
+    const error = runBlender(candidate);
+    if (!error) {
+      model = candidate;
+      break;
+    }
+    errors.push(`${path.basename(candidate)}: ${error}`);
+    console.log(`  tried    ${path.relative(raw, candidate)} (${error})`);
+  }
+  if (!model) throw new Error(errors.join(" | "));
+  console.log(`  model    ${path.relative(raw, model)}`);
+  const used = readJson(report, { textures: [], missing: [], untexturedMaterials: 0, triangles: 0, size: { width: 1, depth: 1, height: 1 } });
   if (used.missing.length) console.log(`  missing  ${used.missing.map((p) => path.basename(p)).join(", ")}`);
 
   // Fall back to every image next to the model if the importer found no texture links.
@@ -208,10 +277,23 @@ async function buildPuzzle(zipFile) {
   console.log(`  textures ${textures.length}`);
 
   const { sheet, width, height } = await buildSheet(textures);
-  const hints = await buildHints(sheet, width, height, id);
+  const { hints, fill } = await buildHints(sheet, width, height, id);
   hints.forEach((h, i) => fs.writeFileSync(path.join(out, `hint${i + 1}.png`), h.png));
   fs.writeFileSync(path.join(out, `hint${hints.length + 1}.png`), sheet);
   console.log(`  reveal   ${hints.map((h) => Math.round(h.share * 100) + "%").join(" → ")} → 100%`);
+
+  const glbBytes = fs.statSync(glb).size;
+  const flags = qualityFlags(info, used, textures.length, glbBytes, fill);
+  if (model !== candidates[0]) flags.push(`Fell back to ${path.basename(model)}`);
+  if (VARIANT.test(path.relative(raw, model))) flags.push("Used a variant or spare-part file");
+  if (flags.length) console.log(`  flags    ${flags.join("; ")}`);
+  review[id] = {
+    ...info,
+    zip: path.basename(zipFile),
+    flags,
+    stats: { textures: textures.length, triangles: used.triangles, kb: Math.round(glbBytes / 1024), fill: Math.round(fill * 100) },
+    builtAt: new Date().toISOString(),
+  };
 
   return {
     id,
@@ -226,6 +308,8 @@ async function buildPuzzle(zipFile) {
 const zips = fs.readdirSync(ZIPS).filter((f) => f.toLowerCase().endsWith(".zip")).map((f) => path.join(ZIPS, f));
 const index = path.join(OUT, "index.json");
 const existing = new Map(readJson(index, []).map((p) => [p.id, p]));
+const reportFile = path.join(REVIEW, "report.json");
+const review = readJson(reportFile, {});
 let failed = 0;
 for (const zip of zips) {
   try {
@@ -235,6 +319,16 @@ for (const zip of zips) {
   } catch (err) {
     failed++;
     console.error(`  ✗ ${path.basename(zip)}: ${err.message}`);
+    // Failed builds still show on the review page so they can be rejected or fixed.
+    try {
+      const info = parseZipName(zip);
+      const id = slugify(`${info.game}-${info.name}`);
+      existing.delete(id);
+      fs.rmSync(path.join(OUT, id), { recursive: true, force: true });
+      review[id] = { ...info, zip: path.basename(zip), error: err.message, flags: [], builtAt: new Date().toISOString() };
+    } catch {
+      // Unparseable zip name; the console error is all we can offer.
+    }
   }
 }
 // A full build also drops puzzles whose zip has been removed from data/modelzipped.
@@ -255,7 +349,10 @@ if (!filter) {
     fs.rmSync(path.join(OUT, id), { recursive: true, force: true });
     console.log(`\n▸ ${id}\n  removed  its zip is no longer in data/modelzipped`);
   }
+  for (const id of Object.keys(review)) if (!live.has(id)) delete review[id];
 }
+fs.mkdirSync(REVIEW, { recursive: true });
+fs.writeFileSync(reportFile, JSON.stringify(review, null, 2));
 fs.mkdirSync(OUT, { recursive: true });
 fs.writeFileSync(index, JSON.stringify([...existing.values()].sort((a, b) => a.id.localeCompare(b.id)), null, 2));
 console.log(`\n${existing.size} puzzles in web/public/puzzles/index.json${failed ? `, ${failed} failed` : ""}`);

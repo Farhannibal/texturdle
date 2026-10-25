@@ -1,17 +1,21 @@
-"""Headless Blender step: import one model, export it as GLB, report the textures it uses.
+"""Headless Blender step: import one model, export it as GLB, report the textures it uses
+plus some stats for the review page, and optionally render a preview image.
 
 Usage:
-  blender -b --factory-startup -P blender_export.py -- <model> <out.glb> <out.json> [rotateX degrees]
+  blender -b --factory-startup -P blender_export.py -- <model> <out.glb> <out.json> [rotateX degrees] [preview.png]
 """
 import json
+import math
 import os
 import sys
 
 import bpy
+from mathutils import Matrix, Vector
 
 args = sys.argv[sys.argv.index("--") + 1:]
 model, out_glb, out_json = args[:3]
 rotate_x = float(args[3]) if len(args) > 3 else 0.0
+preview = args[4] if len(args) > 4 else ""
 ext = os.path.splitext(model)[1].lower()
 
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -55,9 +59,11 @@ def feeds_colour(node, depth=0):
 textures = []
 missing = []
 seen = set()
+untextured = 0
 for mat in bpy.data.materials:
     if not mat.use_nodes:
         continue
+    has_colour_texture = False
     for node in mat.node_tree.nodes:
         if node.type != "TEX_IMAGE" or node.image is None:
             continue
@@ -65,22 +71,30 @@ for mat in bpy.data.materials:
         node.interpolation = "Closest"
         if not feeds_colour(node):
             continue
+        has_colour_texture = True
         path = os.path.normpath(bpy.path.abspath(node.image.filepath))
         if path in seen:
             continue
         seen.add(path)
         (textures if os.path.isfile(path) else missing).append(path)
+    if not has_colour_texture and mat.users:
+        untextured += 1
 
 # Some rips are exported lying down; overrides.json can give an X rotation to stand them up.
 if rotate_x:
-    import math
-
-    from mathutils import Matrix
-
     turn = Matrix.Rotation(math.radians(rotate_x), 4, "X")
     for o in bpy.context.scene.objects:
         if o.parent is None:
             o.matrix_world = turn @ o.matrix_world
+
+# Stats for the review page. Blender is Z-up: x = width, y = depth, z = height.
+bpy.context.view_layer.update()
+meshes = [o for o in bpy.context.scene.objects if o.type == "MESH"]
+corners = [o.matrix_world @ Vector(c) for o in meshes for c in o.bound_box]
+lo = Vector((min(c.x for c in corners), min(c.y for c in corners), min(c.z for c in corners))) if corners else Vector()
+hi = Vector((max(c.x for c in corners), max(c.y for c in corners), max(c.z for c in corners))) if corners else Vector()
+size = hi - lo
+tris = sum(len(p.vertices) - 2 for o in meshes for p in o.data.polygons)
 
 bpy.ops.export_scene.gltf(
     filepath=out_glb,
@@ -89,5 +103,42 @@ bpy.ops.export_scene.gltf(
     export_yup=True,
 )
 
+# A quick front-on render (Workbench, textured, transparent background) for reviewing
+# a batch without loading every model in the browser.
+if preview and corners:
+    scene = bpy.context.scene
+    scene.render.engine = "BLENDER_WORKBENCH"
+    scene.display.shading.light = "STUDIO"
+    scene.display.shading.color_type = "TEXTURE"
+    scene.render.film_transparent = True
+    scene.render.resolution_x = scene.render.resolution_y = 384
+    scene.render.image_settings.file_format = "PNG"
+    centre = (lo + hi) / 2
+    radius = max(size.length / 2, 1e-6)
+    cam_data = bpy.data.cameras.new("preview")
+    cam_data.lens_unit = "FOV"
+    cam_data.angle = math.radians(35)
+    cam_data.clip_start = radius / 100
+    cam_data.clip_end = radius * 20
+    cam = bpy.data.objects.new("preview", cam_data)
+    scene.collection.objects.link(cam)
+    dist = radius / math.sin(cam_data.angle / 2) * 1.02
+    # Front of the model faces -Y in Blender (+Z once exported to glTF).
+    cam.location = centre + Vector((0, -dist, radius * 0.25))
+    cam.rotation_euler = (centre - cam.location).to_track_quat("-Z", "Y").to_euler()
+    scene.camera = cam
+    scene.render.filepath = preview
+    bpy.ops.render.render(write_still=True)
+
 with open(out_json, "w", encoding="utf-8") as f:
-    json.dump({"textures": textures, "missing": missing}, f, indent=2)
+    json.dump(
+        {
+            "textures": textures,
+            "missing": missing,
+            "untexturedMaterials": untextured,
+            "triangles": tris,
+            "size": {"width": size.x, "depth": size.y, "height": size.z},
+        },
+        f,
+        indent=2,
+    )

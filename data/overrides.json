@@ -16,41 +16,189 @@
     "reason": "Imports lying down and ignores the rotateX fix"
   },
   "sonic-adventure-2-battle-sonic": {
-    "sourceUrl": "https://models.spriters-resource.com/gamecube/sonicadventure2battle/asset/283113/"
+    "sourceUrl": "https://models.spriters-resource.com/gamecube/sonicadventure2battle/asset/283113/",
+    "status": "approved"
   },
   "super-mario-sunshine-mario": {
-    "sourceUrl": "https://models.spriters-resource.com/gamecube/supermariosunshine/asset/282910/"
+    "sourceUrl": "https://models.spriters-resource.com/gamecube/supermariosunshine/asset/282910/",
+    "status": "approved"
   },
   "the-legend-of-zelda-the-wind-waker-link": {
-    "sourceUrl": "https://models.spriters-resource.com/gamecube/thelegendofzeldathewindwaker/asset/290582/"
+    "sourceUrl": "https://models.spriters-resource.com/gamecube/thelegendofzeldathewindwaker/asset/290582/",
+    "status": "approved"
   },
   "mario-party-2-mario": {
-    "sourceUrl": "https://models.spriters-resource.com/nintendo_64/marioparty2/asset/298013/"
+    "sourceUrl": "https://models.spriters-resource.com/nintendo_64/marioparty2/asset/298013/",
+    "status": "rejected"
   },
   "pokemon-stadium-2-0006-charizard": {
     "sourceUrl": "https://models.spriters-resource.com/nintendo_64/pokemonstadium2/asset/287748/",
-    "credit": "lemurboy12"
+    "credit": "lemurboy12",
+    "status": "approved"
   },
   "pokemon-stadium-2-0094-gengar": {
     "sourceUrl": "https://models.spriters-resource.com/nintendo_64/pokemonstadium2/asset/287895/",
-    "credit": "lemurboy12"
+    "credit": "lemurboy12",
+    "status": "approved"
   },
   "super-smash-bros-samus": {
-    "sourceUrl": "https://models.spriters-resource.com/nintendo_64/ssb/asset/294310/"
+    "sourceUrl": "https://models.spriters-resource.com/nintendo_64/ssb/asset/294310/",
+    "status": "rejected"
   },
   "final-fantasy-ix-zidane": {
-    "sourceUrl": "https://models.spriters-resource.com/pc_computer/finalfantasyix/asset/303117/"
+    "sourceUrl": "https://models.spriters-resource.com/pc_computer/finalfantasyix/asset/303117/",
+    "status": "approved"
   },
   "kingdom-hearts-sora": {
-    "sourceUrl": "https://models.spriters-resource.com/playstation_2/kingdomhearts/asset/284102/"
+    "sourceUrl": "https://models.spriters-resource.com/playstation_2/kingdomhearts/asset/284102/",
+    "status": "approved"
   },
   "silent-hill-2-pyramid-head": {
-    "sourceUrl": "https://models.spriters-resource.com/playstation_2/silenthill2/asset/344221/"
+    "sourceUrl": "https://models.spriters-resource.com/playstation_2/silenthill2/asset/344221/",
+    "status": "approved"
   },
   "super-mario-odyssey-mario-boxers": {
-    "sourceUrl": "https://models.spriters-resource.com/nintendo_switch/supermarioodyssey/asset/306542/"
+    "sourceUrl": "https://models.spriters-resource.com/nintendo_switch/supermarioodyssey/asset/306542/",
+    "status": "approved"
   },
   "the-simpsons-hit-run-bart": {
-    "sourceUrl": "https://models.spriters-resource.com/pc_computer/simpsonshitrun/asset/295263/"
+    "sourceUrl": "https://models.spriters-resource.com/pc_computer/simpsonshitrun/asset/295263/",
+    "status": "rejected"
+  },
+  "mario-kart-8-deluxe-3ds-rainbow-road": {
+    "rotateX": -90,
+    "status": "rejected"
+  },
+  "final-fantasy-vii-cloud-strife": {
+    "status": "rejected"
+  },
+  "spyro-the-dragon-spyro": {
+    "status": "approved"
+  },
+  "zenless-zone-zero-hamburger": {
+    "status": "approved"
+  },
+  "super-smash-bros-ultimate-fox": {
+    "status": "approved"
+  },
+  "the-legend-of-zelda-ocarina-of-time-temple-of-time": {
+    "status": "approved"
+  },
+  "pokemon-quest-0059-arcanine": {
+    "status": "rejected"
+  },
+  "super-mario-64-peach-s-castle-exterior": {
+    "status": "approved"
+  },
+  "conker-s-bad-fur-day-conker-cutscene": {
+    "status": "approved"
+  },
+  "the-legend-of-zelda-phantom-hourglass-link": {
+    "status": "approved"
+  },
+  "team-fortress-2-spy": {
+    "status": "approved"
+  },
+  "team-fortress-2-heavy": {
+    "status": "approved"
+  },
+  "pokemon-x-y-0009-blastoise": {
+    "status": "approved"
+  },
+  "soulcalibur-iv-ivy": {
+    "status": "approved"
+  },
+  "the-legend-of-zelda-breath-of-the-wild-master-sword": {
+    "status": "approved"
+  },
+  "persona-5-haru-okumura": {
+    "status": "approved"
+  },
+  "silent-hill-harry-mason": {
+    "status": "approved"
+  },
+  "resident-evil-2-leon": {
+    "status": "approved"
+  },
+  "chrono-cross-funguy": {
+    "status": "approved"
+  },
+  "super-smash-bros-ultimate-zero-suit-samus": {
+    "status": "approved"
+  },
+  "mario-rabbids-sparks-of-hope-rabbid-rosalina": {
+    "status": "approved"
+  },
+  "mario-rabbids-sparks-of-hope-rabbid-mario": {
+    "status": "approved"
+  },
+  "the-legend-of-zelda-twilight-princess-link-tunic": {
+    "status": "approved"
+  },
+  "the-legend-of-zelda-twilight-princess-hero-s-shade": {
+    "status": "approved"
+  },
+  "super-mario-64-ds-luigi-dealer": {
+    "status": "rejected"
+  },
+  "the-legend-of-zelda-ocarina-of-time-3d-ganondorf-future": {
+    "status": "rejected"
+  },
+  "marvel-vs-capcom-3-spider-man": {
+    "status": "approved"
+  },
+  "the-legend-of-zelda-breath-of-the-wild-urbosa": {
+    "status": "rejected"
+  },
+  "the-legend-of-zelda-skyward-sword-zelda-skyloft": {
+    "status": "approved"
+  },
+  "spongebob-squarepants-creature-from-the-krusty-krab-spongebob-speed-demon": {
+    "status": "approved"
+  },
+  "project-zero-2-wii-edition-mio-amakura-mario": {
+    "status": "approved"
+  },
+  "virtua-fighter-jacky-bryant": {
+    "status": "rejected"
+  },
+  "metal-gear-solid-solid-snake-shirtless": {
+    "status": "approved"
+  },
+  "bubsy-3d-bubsy": {
+    "status": "approved"
+  },
+  "hello-neighbor-neighbor-theodore-peterson": {
+    "status": "approved"
+  },
+  "family-guy-back-to-the-multiverse-peter-gold-suit": {
+    "status": "approved"
+  },
+  "the-legend-of-zelda-tears-of-the-kingdom-zelda-scientist": {
+    "status": "approved"
+  },
+  "the-legend-of-zelda-link-s-awakening-link": {
+    "status": "approved"
+  },
+  "princess-peach-showtime-swordfighter-peach": {
+    "status": "approved"
+  },
+  "super-mario-64-piranha-plant": {
+    "status": "approved"
+  },
+  "south-park-cartman": {
+    "status": "approved"
+  },
+  "banjo-tooie-mumbo-jumbo": {
+    "status": "approved"
+  },
+  "super-smash-bros-melee-luigi": {
+    "status": "approved"
+  },
+  "resident-evil-naked-zombie": {
+    "status": "approved"
+  },
+  "mario-party-island-tour-hammer-bro-fire-bro": {
+    "status": "approved"
   }
 }
