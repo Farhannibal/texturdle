@@ -7,7 +7,7 @@
     <meta name="description" content="A daily game: guess the video game from a 3D model's textures." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=Figtree:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,700;1,700&family=Figtree:wght@400;500;600;700&display=swap" />
     <script type="module" src="/src/main.ts"></script>
   </head>
   <body>
@@ -19,7 +19,7 @@
 
     <header class="top">
       <div class="brand">
-        <span class="logo" aria-hidden="true"></span>
+        <svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><polygon points="4,11 12,6.5 20,11 12,15.5" fill="#ffd23f" /><polygon points="12,6.5 20,2 28,6.5 20,11" fill="#ff9f1c" /><polygon points="12,15.5 20,11 28,15.5 20,20" fill="#ff9f1c" /><polygon points="20,11 28,6.5 36,11 28,15.5" fill="#ffd23f" /><polygon points="4,11 12,15.5 12,24.5 4,20" fill="#ff4fb8" /><polygon points="12,15.5 20,20 20,29 12,24.5" fill="#c41f86" /><polygon points="4,20 12,24.5 12,33.5 4,29" fill="#c41f86" /><polygon points="12,24.5 20,29 20,38 12,33.5" fill="#ff4fb8" /><polygon points="20,20 28,15.5 28,24.5 20,29" fill="#3fd4ff" /><polygon points="28,15.5 36,11 36,20 28,24.5" fill="#1f6fe0" /><polygon points="20,29 28,24.5 28,33.5 20,38" fill="#1f6fe0" /><polygon points="28,24.5 36,20 36,29 28,33.5" fill="#3fd4ff" /></svg>
         <h1>Texturdle</h1>
         <span class="no" id="puzzle-no"></span>
         <span class="practice" id="practice-flag" hidden>Practice</span>
@@ -28,6 +28,9 @@
         <button id="toggle-sound" type="button" class="icon-btn">
           <svg id="icon-sound-on" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 8v4h3l4 3.5v-11L6 8z" /><path d="M13.5 7a4 4 0 0 1 0 6M15.5 4.5a7.5 7.5 0 0 1 0 11" /></svg>
           <svg id="icon-sound-off" viewBox="0 0 20 20" aria-hidden="true" hidden><path d="M3 8v4h3l4 3.5v-11L6 8z" /><path d="M13.5 8l4 4M17.5 8l-4 4" /></svg>
+        </button>
+        <button id="open-archive" type="button" class="icon-btn" aria-label="Past puzzles">
+          <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4.5" width="14" height="12.5" rx="2" /><path d="M3 8.5h14M7 2.5v4M13 2.5v4" /></svg>
         </button>
         <button id="open-help" type="button" class="icon-btn" aria-label="How to play">?</button>
         <button id="open-stats" type="button" class="icon-btn" aria-label="Statistics">
@@ -72,6 +75,7 @@
           <pre class="share-preview" id="share-preview"></pre>
           <div class="share-row">
             <button id="share" type="button" class="primary">Copy result</button>
+            <button id="result-archive" type="button" class="ghost">Play past puzzles</button>
             <span class="share-note" id="share-note" role="status"></span>
           </div>
           <p class="next" id="next"></p>
@@ -96,6 +100,17 @@
       </ul>
       <p class="muted">A new puzzle unlocks every day at midnight UTC. Models come from The Models Resource and are credited to the people who ripped them.</p>
       <button type="button" class="primary" data-close>Start playing</button>
+    </dialog>
+
+    <dialog id="archive" class="archive" aria-labelledby="archive-title">
+      <h2 id="archive-title">Past puzzles</h2>
+      <p id="archive-locked" class="muted">Finish today's puzzle to unlock the archive. Then you can play every day you missed.</p>
+      <div id="archive-body">
+        <div class="stat-nums" id="archive-nums"></div>
+        <p class="muted archive-note">Archive games don't change your daily streak.</p>
+        <nav class="days" id="archive-list" aria-label="Puzzles by day"></nav>
+      </div>
+      <button type="button" class="ghost" data-close>Close</button>
     </dialog>
 
     <dialog id="stats" aria-labelledby="stats-title">

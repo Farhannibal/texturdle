@@ -6,7 +6,7 @@
     "category": "Playable Characters",
     "name": "Zidane",
     "credit": null,
-    "sourceUrl": null,
+    "sourceUrl": "https://models.spriters-resource.com/pc_computer/finalfantasyix/asset/303117/",
     "textureCount": 2,
     "sheet": {
       "width": 840,
@@ -19,8 +19,8 @@
     "game": "Kingdom Hearts",
     "category": "Playable Characters",
     "name": "Sora",
-    "credit": null,
-    "sourceUrl": null,
+    "credit": "Roxas358",
+    "sourceUrl": "https://models.spriters-resource.com/playstation_2/kingdomhearts/asset/284102/",
     "textureCount": 7,
     "sheet": {
       "width": 402,
@@ -34,7 +34,7 @@
     "category": "Playable Characters",
     "name": "Mario",
     "credit": null,
-    "sourceUrl": null,
+    "sourceUrl": "https://models.spriters-resource.com/nintendo_64/marioparty2/asset/298013/",
     "textureCount": 4,
     "sheet": {
       "width": 285,
@@ -47,8 +47,8 @@
     "game": "Pokemon Stadium 2",
     "category": "Pokemon (1st Generation)",
     "name": "#0006 Charizard",
-    "credit": null,
-    "sourceUrl": null,
+    "credit": "lemurboy12",
+    "sourceUrl": "https://models.spriters-resource.com/nintendo_64/pokemonstadium2/asset/287748/",
     "textureCount": 12,
     "sheet": {
       "width": 396,
@@ -61,8 +61,8 @@
     "game": "Pokemon Stadium 2",
     "category": "Pokemon (1st Generation)",
     "name": "#0094 Gengar",
-    "credit": null,
-    "sourceUrl": null,
+    "credit": "lemurboy12",
+    "sourceUrl": "https://models.spriters-resource.com/nintendo_64/pokemonstadium2/asset/287895/",
     "textureCount": 6,
     "sheet": {
       "width": 282,
@@ -76,7 +76,7 @@
     "category": "Enemies",
     "name": "Pyramid Head",
     "credit": null,
-    "sourceUrl": null,
+    "sourceUrl": "https://models.spriters-resource.com/playstation_2/silenthill2/asset/344221/",
     "textureCount": 3,
     "sheet": {
       "width": 1028,
@@ -90,7 +90,7 @@
     "category": "Playable Characters",
     "name": "Sonic",
     "credit": "divx2k60",
-    "sourceUrl": null,
+    "sourceUrl": "https://models.spriters-resource.com/gamecube/sonicadventure2battle/asset/283113/",
     "textureCount": 9,
     "sheet": {
       "width": 422,
@@ -103,8 +103,8 @@
     "game": "Super Mario Odyssey",
     "category": "Playable Characters",
     "name": "Mario (Boxers)",
-    "credit": null,
-    "sourceUrl": null,
+    "credit": "Random Talking Bush and SciresM",
+    "sourceUrl": "https://models.spriters-resource.com/nintendo_switch/supermarioodyssey/asset/306542/",
     "textureCount": 9,
     "sheet": {
       "width": 1007,
@@ -118,7 +118,7 @@
     "category": "Playable Characters",
     "name": "Mario",
     "credit": null,
-    "sourceUrl": null,
+    "sourceUrl": "https://models.spriters-resource.com/gamecube/supermariosunshine/asset/282910/",
     "textureCount": 5,
     "sheet": {
       "width": 382,
@@ -132,7 +132,7 @@
     "category": "Fighters",
     "name": "Samus",
     "credit": null,
-    "sourceUrl": null,
+    "sourceUrl": "https://models.spriters-resource.com/nintendo_64/ssb/asset/294310/",
     "textureCount": 18,
     "sheet": {
       "width": 489,
@@ -146,7 +146,7 @@
     "category": "Playable Characters",
     "name": "Link",
     "credit": null,
-    "sourceUrl": null,
+    "sourceUrl": "https://models.spriters-resource.com/gamecube/thelegendofzeldathewindwaker/asset/290582/",
     "textureCount": 5,
     "sheet": {
       "width": 301,
@@ -159,8 +159,8 @@
     "game": "The Simpsons: Hit & Run",
     "category": "Playable Characters",
     "name": "Bart",
-    "credit": null,
-    "sourceUrl": null,
+    "credit": "miotalbejita",
+    "sourceUrl": "https://models.spriters-resource.com/pc_computer/simpsonshitrun/asset/295263/",
     "textureCount": 2,
     "sheet": {
       "width": 215,

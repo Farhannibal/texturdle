@@ -64,6 +64,8 @@ const DAY = 86_400_000;
 
 export const puzzleNumber = (now = Date.now()) => Math.floor((now - LAUNCH) / DAY) + 1;
 export const msUntilNext = (now = Date.now()) => DAY - ((now - LAUNCH) % DAY);
+/** The UTC calendar day puzzle `n` was (or will be) the daily puzzle. */
+export const puzzleDate = (n: number) => new Date(LAUNCH + (n - 1) * DAY);
 
 /** A fixed shuffle of puzzle ids so the daily order isn't alphabetical. */
 export function dailyPuzzle(puzzles: Puzzle[], n: number): Puzzle {

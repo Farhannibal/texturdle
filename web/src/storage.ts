@@ -1,7 +1,8 @@
 import { MAX_GUESSES, type GameState } from "./game";
 
 // Everything lives in one localStorage entry. Daily games are keyed by puzzle number;
-// practice games (dev picker) are keyed "practice:<id>" and never count toward stats.
+// past puzzles played from the archive are keyed "archive:<number>", and practice games
+// (dev picker) "practice:<id>". Only daily games count toward the streak and stats.
 const KEY = "texturdle:v1";
 
 interface Saved {
@@ -29,6 +30,23 @@ export function saveGame(key: string, state: GameState) {
   } catch {
     // Ignore: progress just won't survive a reload.
   }
+}
+
+export interface DayRecord {
+  n: number;
+  /** The game for this day, if the player has started it. */
+  state: GameState | null;
+  /** True if it was finished from the archive rather than on the day. */
+  late: boolean;
+}
+
+/** How the player did on puzzle `n`: on the day if they finished it then, otherwise from the archive. */
+export function dayRecord(n: number): DayRecord {
+  const onTime = saved.games[String(n)];
+  if (onTime && onTime.status !== "playing") return { n, state: onTime, late: false };
+  const later = saved.games[`archive:${n}`];
+  if (later) return { n, state: later, late: true };
+  return { n, state: onTime ?? null, late: false };
 }
 
 export interface Stats {

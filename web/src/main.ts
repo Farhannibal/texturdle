@@ -1,11 +1,12 @@
 import "./style.css";
 import { buildCatalog, gameId, search, type Game } from "./catalog";
 import {
-  MAX_GUESSES, MODEL_STAGE, STAGES, dailyPuzzle, msUntilNext, newGame, puzzleNumber, shareText, submitGuess, unlockedStage,
+  MAX_GUESSES, MODEL_STAGE, STAGES, dailyPuzzle, msUntilNext, newGame, puzzleDate, puzzleNumber, shareText, submitGuess,
+  unlockedStage,
   type GameState, type Puzzle,
 } from "./game";
 import { confetti, isMuted, setMuted, winSound } from "./celebrate";
-import { getGame, saveGame, stats } from "./storage";
+import { dayRecord, getGame, saveGame, stats } from "./storage";
 import type { Viewer } from "./viewer";
 
 const $ = <T extends HTMLElement = HTMLElement>(sel: string) => document.querySelector(sel) as T;
@@ -18,23 +19,46 @@ const h = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: s
 
 const puzzles: Puzzle[] = await fetch("/puzzles/index.json").then((r) => r.json());
 const catalog = buildCatalog(puzzles.map((p) => ({ title: p.game, platform: p.platform })));
-const today = puzzleNumber();
+const params = new URLSearchParams(location.search);
+// In dev, ?today=<n> pretends it's day n so the archive can be tested with more history.
+const devToday = import.meta.env.DEV ? Number(params.get("today")) : NaN;
+const today = Number.isInteger(devToday) && devToday > 0 ? devToday : puzzleNumber();
+
+/** A link that keeps the dev ?today override. */
+function pageUrl(query: Record<string, string> = {}) {
+  const q = new URLSearchParams(query);
+  if (import.meta.env.DEV && params.has("today")) q.set("today", String(today));
+  const s = q.toString();
+  return s ? `?${s}` : location.pathname;
+}
 
 // ?practice=<puzzle id> plays any puzzle without touching the daily streak.
-const practiceId = new URLSearchParams(location.search).get("practice");
+const practiceId = params.get("practice");
 const practice = practiceId ? puzzles.find((p) => p.id === practiceId) ?? null : null;
-const puzzle = practice ?? dailyPuzzle(puzzles, today);
+// ?day=<n> replays a past daily puzzle from the archive.
+const dayParam = Number(params.get("day"));
+const archiveDay = !practice && Number.isInteger(dayParam) && dayParam >= 1 && dayParam < today ? dayParam : null;
+const day = archiveDay ?? today;
+const puzzle = practice ?? dailyPuzzle(puzzles, day);
 const answerId = gameId(puzzle.game);
-const saveKey = practice ? `practice:${practice.id}` : String(today);
-const label = practice ? "Practice" : `#${today}`;
+const label = practice ? "Practice" : `#${day}`;
 
-let state: GameState = getGame(saveKey)?.puzzleId === puzzle.id ? getGame(saveKey)! : newGame(puzzle.id);
+// A past day finished on the day is shown as it was; otherwise archive play has its own save.
+const onTime = archiveDay ? getGame(String(archiveDay)) : null;
+const saveKey = practice
+  ? `practice:${practice.id}`
+  : archiveDay
+    ? onTime && onTime.status !== "playing" && onTime.puzzleId === puzzle.id ? String(archiveDay) : `archive:${archiveDay}`
+    : String(today);
+const saved = getGame(saveKey) ?? (archiveDay ? onTime : null);
+let state: GameState = saved?.puzzleId === puzzle.id ? saved : newGame(puzzle.id);
 let viewing = unlockedStage(state);
 let selected: Game | null = null;
 let viewer: Viewer | null = null;
 
 $("#puzzle-no").textContent = practice ? "" : label;
-$("#practice-flag").hidden = !practice;
+$("#practice-flag").hidden = !practice && !archiveDay;
+$("#practice-flag").textContent = practice ? "Practice" : "Archive";
 
 // ---- Stage tabs + hint frame -----------------------------------------------
 
@@ -210,9 +234,10 @@ function renderResult() {
   $("#answer-game").textContent = puzzle.game;
   $("#answer-meta").textContent = `${puzzle.name} · ${puzzle.category} · ${puzzle.platform} · ${puzzle.textureCount} textures`;
   const credit = $("#answer-credit");
-  credit.replaceChildren(`Ripped by ${puzzle.credit ?? "an uncredited contributor"} for The Models Resource`);
+  // When the zip didn't name the ripper, the linked page does.
+  credit.replaceChildren(puzzle.credit ? `Ripped by ${puzzle.credit} for The Models Resource` : "Model from The Models Resource");
   if (puzzle.sourceUrl) {
-    const a = h("a", undefined, "View on The Models Resource");
+    const a = h("a", undefined, puzzle.credit ? "View on The Models Resource" : "See who ripped it");
     a.href = puzzle.sourceUrl;
     a.target = "_blank";
     a.rel = "noopener";
@@ -222,8 +247,11 @@ function renderResult() {
 
   clearInterval(countdown);
   const next = $("#next");
-  if (practice) {
-    next.textContent = "Practice puzzle. Your daily streak isn't affected.";
+  $("#result-archive").hidden = !!practice;
+  if (practice || archiveDay) {
+    next.textContent = practice
+      ? "Practice puzzle. Your daily streak isn't affected."
+      : `Archive puzzle from ${formatDate(day)}. Your daily streak isn't affected.`;
     return;
   }
   const tick = () => {
@@ -268,7 +296,7 @@ function renderStats() {
       const row = h("div", "dist-row");
       const bar = h("span", "dist-bar", String(count));
       bar.style.width = `${Math.max(8, (count / max) * 100)}%`;
-      if (state.status === "won" && !practice && state.guesses.length === i + 1) bar.classList.add("today");
+      if (state.status === "won" && !practice && !archiveDay && state.guesses.length === i + 1) bar.classList.add("today");
       row.append(h("span", "dist-n", String(i + 1)), bar);
       return row;
     }),
@@ -281,6 +309,88 @@ for (const [btn, dlg] of [["#open-help", "#help"], ["#open-stats", "#stats"]] as
     $<HTMLDialogElement>(dlg).showModal();
   };
 }
+
+// ---- Archive -------------------------------------------------------------------
+
+const formatDate = (n: number) =>
+  puzzleDate(n).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" });
+
+function renderArchive() {
+  // The archive opens once today's puzzle is finished, so it can't be used to dodge it.
+  const todayDone = (getGame(String(today))?.status ?? "playing") !== "playing";
+  $("#archive-locked").hidden = todayDone;
+  $("#archive-body").hidden = !todayDone;
+  if (!todayDone) return;
+
+  const days = Array.from({ length: today }, (_, i) => today - i);
+  const records = days.map((n) => {
+    const r = dayRecord(n);
+    // A save made for a different puzzle (the puzzle list changed since) doesn't count.
+    const p = dailyPuzzle(puzzles, n);
+    return r.state && r.state.puzzleId !== p.id ? { ...r, state: null } : r;
+  });
+
+  const finished = records.filter((r) => r.state && r.state.status !== "playing");
+  const wins = finished.filter((r) => r.state!.status === "won");
+  const avg = wins.length ? wins.reduce((s, r) => s + r.state!.guesses.length, 0) / wins.length : 0;
+  const nums: [string, string | number][] = [
+    ["Played", `${finished.length}/${days.length}`],
+    ["Solved", wins.length],
+    ["Avg guesses", wins.length ? avg.toFixed(1) : "–"],
+    ["On the day", finished.filter((r) => !r.late).length],
+  ];
+  $("#archive-nums").replaceChildren(
+    ...nums.map(([k, v]) => {
+      const d = h("div", "stat");
+      d.append(h("b", undefined, String(v)), h("span", undefined, k));
+      return d;
+    }),
+  );
+
+  $("#archive-list").replaceChildren(
+    ...records.map((r) => {
+      const st = r.state;
+      const isToday = r.n === today;
+      const a = h("a", "day");
+      a.href = isToday ? pageUrl() : pageUrl({ day: String(r.n) });
+      if (r.n === day && !practice) a.setAttribute("aria-current", "page");
+
+      const when = h("span", "day-when");
+      when.append(h("b", undefined, `#${r.n}`), h("span", undefined, isToday ? "Today" : formatDate(r.n)));
+
+      const what = h("span", "day-what");
+      if (st && st.status !== "playing") {
+        what.textContent = puzzles.find((p) => p.id === st.puzzleId)?.game ?? "";
+      } else {
+        what.textContent = st ? "In progress" : "Not played";
+        what.classList.add("muted");
+      }
+
+      const squares = h("span", "day-squares");
+      squares.setAttribute("aria-hidden", "true");
+      for (let i = 0; i < MAX_GUESSES; i++) squares.append(h("i", st?.guesses[i]?.result ?? "none"));
+
+      const chip = h(
+        "span",
+        `day-chip ${!st ? "new" : st.status}`,
+        !st ? "Play" : st.status === "won" ? `${st.guesses.length}/${MAX_GUESSES}` : st.status === "lost" ? "Missed" : "Resume",
+      );
+      if (r.late && st && st.status !== "playing") a.append(when, what, squares, chip, h("span", "day-late", "played later"));
+      else a.append(when, what, squares, chip);
+      a.setAttribute(
+        "aria-label",
+        `Puzzle ${r.n}, ${isToday ? "today" : formatDate(r.n)}: ${
+          !st ? "not played" : st.status === "won" ? `solved in ${st.guesses.length}` : st.status === "lost" ? "missed" : "in progress"
+        }${r.late ? ", played later" : ""}`,
+      );
+      return a;
+    }),
+  );
+}
+
+const openArchive = () => (renderArchive(), $<HTMLDialogElement>("#archive").showModal());
+$("#open-archive").onclick = openArchive;
+$("#result-archive").onclick = openArchive;
 const soundBtn = $<HTMLButtonElement>("#toggle-sound");
 const renderSound = () => {
   const muted = isMuted();

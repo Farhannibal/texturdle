@@ -77,10 +77,19 @@ function pickModel(files, override, dir) {
   return models.sort((a, b) => fs.statSync(b).size - fs.statSync(a).size)[0];
 }
 
+// Rippers credit themselves in a text file inside the zip, worded many ways:
+// "Originally Submitted by: X", "Model ripped by X, no credit needed.",
+// "Model Rippers: X and Y", "This rip revision by X".
+const CREDIT = /(?:submitted by|ripped by|rippers?|revision by)\s*:?\s*([^\r\n]+)/i;
+
 function findCredit(files) {
-  const readme = files.find((f) => /readme|credit/i.test(path.basename(f)) && f.endsWith(".txt"));
-  const m = readme && fs.readFileSync(readme, "utf8").match(/submitted by:?\s*(.+)/i);
-  return m ? m[1].trim() : null;
+  for (const f of files) {
+    if (!f.toLowerCase().endsWith(".txt") || /^materials/i.test(path.basename(f))) continue;
+    const m = fs.readFileSync(f, "utf8").match(CREDIT);
+    const name = m?.[1].split(",")[0].replace(/\.\s*$/, "").trim();
+    if (name) return name;
+  }
+  return null;
 }
 
 // Shelf-pack textures into one sheet, sorted tallest first.

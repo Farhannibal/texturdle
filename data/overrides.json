@@ -14,5 +14,43 @@
   "super-smash-bros-brawl-mario": {
     "skip": true,
     "reason": "Imports lying down and ignores the rotateX fix"
+  },
+  "sonic-adventure-2-battle-sonic": {
+    "sourceUrl": "https://models.spriters-resource.com/gamecube/sonicadventure2battle/asset/283113/"
+  },
+  "super-mario-sunshine-mario": {
+    "sourceUrl": "https://models.spriters-resource.com/gamecube/supermariosunshine/asset/282910/"
+  },
+  "the-legend-of-zelda-the-wind-waker-link": {
+    "sourceUrl": "https://models.spriters-resource.com/gamecube/thelegendofzeldathewindwaker/asset/290582/"
+  },
+  "mario-party-2-mario": {
+    "sourceUrl": "https://models.spriters-resource.com/nintendo_64/marioparty2/asset/298013/"
+  },
+  "pokemon-stadium-2-0006-charizard": {
+    "sourceUrl": "https://models.spriters-resource.com/nintendo_64/pokemonstadium2/asset/287748/",
+    "credit": "lemurboy12"
+  },
+  "pokemon-stadium-2-0094-gengar": {
+    "sourceUrl": "https://models.spriters-resource.com/nintendo_64/pokemonstadium2/asset/287895/",
+    "credit": "lemurboy12"
+  },
+  "super-smash-bros-samus": {
+    "sourceUrl": "https://models.spriters-resource.com/nintendo_64/ssb/asset/294310/"
+  },
+  "final-fantasy-ix-zidane": {
+    "sourceUrl": "https://models.spriters-resource.com/pc_computer/finalfantasyix/asset/303117/"
+  },
+  "kingdom-hearts-sora": {
+    "sourceUrl": "https://models.spriters-resource.com/playstation_2/kingdomhearts/asset/284102/"
+  },
+  "silent-hill-2-pyramid-head": {
+    "sourceUrl": "https://models.spriters-resource.com/playstation_2/silenthill2/asset/344221/"
+  },
+  "super-mario-odyssey-mario-boxers": {
+    "sourceUrl": "https://models.spriters-resource.com/nintendo_switch/supermarioodyssey/asset/306542/"
+  },
+  "the-simpsons-hit-run-bart": {
+    "sourceUrl": "https://models.spriters-resource.com/pc_computer/simpsonshitrun/asset/295263/"
   }
 }

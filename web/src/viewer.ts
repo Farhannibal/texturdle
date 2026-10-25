@@ -46,7 +46,7 @@ interface Spin {
   resolve: () => void;
 }
 
-export function createViewer(container: HTMLElement, outline = "#4a5064"): Viewer {
+export function createViewer(container: HTMLElement, outline = "#5b7fd0"): Viewer {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
