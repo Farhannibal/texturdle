@@ -8,6 +8,8 @@ export interface Puzzle {
   name: string;
   credit: string | null;
   sourceUrl: string | null;
+  /** Other titles that also count as correct, e.g. a regional release listed separately. */
+  accept?: string[];
   textureCount: number;
 }
 
@@ -42,11 +44,11 @@ export const newGame = (puzzleId: string): GameState => ({ puzzleId, guesses: []
 /** The furthest stage the player has unlocked (1 to MAX_GUESSES). Finished games unlock everything. */
 export const unlockedStage = (s: GameState) => (s.status === "playing" ? Math.min(s.guesses.length + 1, MAX_GUESSES) : MAX_GUESSES);
 
-export function submitGuess(state: GameState, puzzle: Puzzle, answerId: string, game: Game | null): GameState {
+export function submitGuess(state: GameState, puzzle: Puzzle, answerIds: string[], game: Game | null): GameState {
   if (state.status !== "playing") return state;
   const result: Result = !game
     ? "skip"
-    : game.id === answerId
+    : answerIds.includes(game.id)
       ? "correct"
       : game.platforms.includes(puzzle.platform)
         ? "platform"

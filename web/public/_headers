@@ -1,0 +1,15 @@
+# Cloudflare Pages response headers (https://developers.cloudflare.com/pages/configuration/headers/)
+
+# Vite's bundles have content hashes in their names, so they never change.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Puzzle files keep the same name when rebuilt, so cache for a day rather than forever.
+/puzzles/*
+  Cache-Control: public, max-age=86400
+
+# The puzzle list changes with every batch; always check for a newer one.
+# ("! Cache-Control" drops the /puzzles/* value above, which would otherwise be merged in.)
+/puzzles/index.json
+  ! Cache-Control
+  Cache-Control: public, max-age=0, must-revalidate

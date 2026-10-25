@@ -1,5 +1,5 @@
 import "./style.css";
-import { buildCatalog, gameId, search, type Game } from "./catalog";
+import { gameId, loadCatalog, search, type Game } from "./catalog";
 import {
   MAX_GUESSES, MODEL_STAGE, STAGES, dailyPuzzle, msUntilNext, newGame, puzzleDate, puzzleNumber, shareText, submitGuess,
   unlockedStage,
@@ -18,7 +18,7 @@ const h = <K extends keyof HTMLElementTagNameMap>(tag: K, cls?: string, text?: s
 };
 
 const puzzles: Puzzle[] = await fetch("/puzzles/index.json").then((r) => r.json());
-const catalog = buildCatalog(puzzles.map((p) => ({ title: p.game, platform: p.platform })));
+const catalog = await loadCatalog(puzzles.map((p) => ({ title: p.game, platform: p.platform })));
 const params = new URLSearchParams(location.search);
 // In dev, ?today=<n> pretends it's day n so the archive can be tested with more history.
 const devToday = import.meta.env.DEV ? Number(params.get("today")) : NaN;
@@ -40,7 +40,8 @@ const dayParam = Number(params.get("day"));
 const archiveDay = !practice && Number.isInteger(dayParam) && dayParam >= 1 && dayParam < today ? dayParam : null;
 const day = archiveDay ?? today;
 const puzzle = practice ?? dailyPuzzle(puzzles, day);
-const answerId = gameId(puzzle.game);
+// The answer, plus any other titles that count (regional names listed as separate games).
+const answerIds = [puzzle.game, ...(puzzle.accept ?? [])].map(gameId);
 const label = practice ? "Practice" : `#${day}`;
 
 // A past day finished on the day is shown as it was; otherwise archive play has its own save.
@@ -156,7 +157,8 @@ function renderMatches() {
       li.id = `opt-${i}`;
       li.role = "option";
       li.setAttribute("aria-selected", String(i === active));
-      li.append(h("span", "opt-title", g.title), h("span", "opt-platform", g.platforms.join(" · ")));
+      const shown = g.platforms.slice(0, 3).join(" · ") + (g.platforms.length > 3 ? ` +${g.platforms.length - 3}` : "");
+      li.append(h("span", "opt-title", g.title), h("span", "opt-platform", shown));
       li.onpointerdown = (e) => (e.preventDefault(), choose(g));
       return li;
     }),
@@ -198,7 +200,7 @@ input.addEventListener("keydown", (e) => {
 });
 
 function play(game: Game | null) {
-  state = submitGuess(state, puzzle, answerId, game);
+  state = submitGuess(state, puzzle, answerIds, game);
   saveGame(saveKey, state);
   viewing = unlockedStage(state);
   selected = null;

@@ -3,3 +3,5 @@ dist/
 data/raw/
 data/modelzipped/
 data/review/
+web/public/puzzles/
+.wrangler/

@@ -1,11 +1,24 @@
-// Games players can pick from. Puzzle answers are merged in from puzzles/index.json at load,
-// so this list mostly exists to give the autocomplete plenty of believable wrong answers.
+// Games players can pick from: ~20k notable games from Wikidata (public/games.json, built by
+// `npm run games`), plus the hand-written list below, which mainly adds familiar shorthand
+// (SA2B, OoT, KH2) to those entries. Puzzle answers are merged in too, so the answer is
+// always pickable.
 
 export interface Game {
   id: string;
   title: string;
   platforms: string[];
   aliases: string[];
+  /** Rough fame (Wikipedia language editions); ranks well-known games first in search. */
+  pop: number;
+  /** Normalized title and aliases, precomputed so search stays fast over 20k games. */
+  keys: string[];
+  /** The same keys with spaces removed, so "biohazard" finds "Bio Hazard". */
+  compact: string[];
+}
+
+interface GameList {
+  platforms: string[];
+  games: [title: string, platforms: number[], aliases: string[], pop: number][];
 }
 
 type Entry = [title: string, platforms: string, aliases?: string];
@@ -150,43 +163,69 @@ const ENTRIES: Entry[] = [
   ["Wii Sports", "Wii"],
 ];
 
+// Lowercase, drop accents, turn punctuation into spaces. NFKD also unfolds full-width
+// characters and Roman-numeral symbols ("Ⅲ" -> "iii"); letters in any script survive, so
+// Japanese titles are searchable too.
 export const normalize = (s: string) =>
-  s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/&/g, "and").replace(/[^a-z0-9]+/g, " ").trim();
+  s.toLowerCase().normalize("NFKD").replace(/\p{M}/gu, "").replace(/&/g, "and").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 
 export const gameId = (title: string) => normalize(title).replace(/ /g, "-");
 
-export function buildCatalog(extra: { title: string; platform: string }[]): Game[] {
+export function buildCatalog(extra: { title: string; platform: string }[], list?: GameList): Game[] {
   const byId = new Map<string, Game>();
-  const add = (title: string, platforms: string[], aliases: string[]) => {
+  // Games with the same name (remakes, regional releases) merge into one entry.
+  const add = (title: string, platforms: string[], aliases: string[], pop = 0) => {
     const id = gameId(title);
-    const g = byId.get(id) ?? { id, title, platforms: [], aliases: [] };
+    const g = byId.get(id) ?? { id, title, platforms: [], aliases: [], pop: 0, keys: [], compact: [] };
     for (const p of platforms) if (!g.platforms.includes(p)) g.platforms.push(p);
     for (const a of aliases) if (!g.aliases.includes(a)) g.aliases.push(a);
+    g.pop = Math.max(g.pop, pop);
     byId.set(id, g);
   };
+  if (list) for (const [title, p, aliases, pop] of list.games) add(title, p.map((i) => list.platforms[i]), aliases, pop);
   for (const [title, platforms, aliases] of ENTRIES) {
     add(title, platforms.split(",").map((s) => s.trim()), aliases ? aliases.split(",").map((s) => s.trim()) : []);
   }
+  // Answers get no popularity boost, so they never stand out in the suggestions.
   for (const e of extra) add(e.title, [e.platform], []);
-  return [...byId.values()].sort((a, b) => a.title.localeCompare(b.title));
+  const games = [...byId.values()];
+  for (const g of games) {
+    g.keys = [...new Set([g.title, ...g.aliases].map(normalize))];
+    g.compact = g.keys.map((k) => k.replaceAll(" ", ""));
+  }
+  return games;
 }
 
-// Ranked match: title prefix, then word prefix, then substring; aliases count as titles.
+/** Loads the full game list; falls back to the built-in list if it can't be fetched. */
+export async function loadCatalog(extra: { title: string; platform: string }[]): Promise<Game[]> {
+  try {
+    const res = await fetch("/games.json");
+    if (res.ok) return buildCatalog(extra, (await res.json()) as GameList);
+  } catch {
+    // Offline or missing file: the smaller built-in list still works.
+  }
+  return buildCatalog(extra);
+}
+
+// Ranked match: exact, then title prefix, then word prefix, then substring (aliases count
+// as titles). Ties go to better-known games, so "mario" suggests Super Mario 64 first.
 export function search(catalog: Game[], query: string, limit = 8): Game[] {
   const q = normalize(query);
   if (!q) return [];
-  const score = (text: string) => {
-    const t = normalize(text);
-    if (t === q) return 0;
-    if (t.startsWith(q)) return 1;
-    if (t.split(" ").some((w) => w.startsWith(q))) return 2;
-    if (t.includes(q)) return 3;
-    return 9;
-  };
-  return catalog
-    .map((g) => ({ g, s: Math.min(score(g.title), ...g.aliases.map(score)) }))
-    .filter((r) => r.s < 9)
-    .sort((a, b) => a.s - b.s || a.g.title.localeCompare(b.g.title))
+  const wordStart = " " + q;
+  const qc = q.replaceAll(" ", "");
+  const score = (t: string) => (t === q ? 0 : t.startsWith(q) ? 1 : t.includes(wordStart) ? 2 : t.includes(q) ? 3 : 9);
+  // Spacing differences ("biohazard" vs "Bio Hazard") rank just behind a real match.
+  const scoreCompact = (t: string) => (t === qc ? 1 : t.startsWith(qc) ? 2 : qc.length >= 4 && t.includes(qc) ? 3 : 9);
+  const hits: { g: Game; s: number }[] = [];
+  for (const g of catalog) {
+    let s = 9;
+    for (const k of g.keys) s = Math.min(s, score(k));
+    if (s > 1) for (const k of g.compact) s = Math.min(s, scoreCompact(k));
+    if (s < 9) hits.push({ g, s });
+  }
+  return hits
+    .sort((a, b) => a.s - b.s || b.g.pop - a.g.pop || a.g.title.localeCompare(b.g.title))
     .slice(0, limit)
     .map((r) => r.g);
 }

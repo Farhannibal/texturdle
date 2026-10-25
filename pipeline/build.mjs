@@ -12,6 +12,7 @@
 //   "<Platform> - <Game> - <Category> - <Model>.zip"
 // Per-puzzle fixes go in data/overrides.json, keyed by slug:
 //   { "<slug>": { "model": "path/inside/zip.dae", "excludeTextures": ["eye"] } }
+// "accept": ["Other Title"] makes other game-list titles count as correct too.
 // Set "skip": true (with an optional "reason") to leave a model out of the game, or
 // "rotateX": -90 to stand up a model that was exported lying down.
 
@@ -41,6 +42,12 @@ const REVIEW = path.join(ROOT, "data/review");
 const BLENDER_TIMEOUT_MS = 4 * 60 * 1000;
 
 const overrides = readJson(path.join(ROOT, "data/overrides.json"), {});
+// Models Resource game name -> the name used in the game list, for the few that differ
+// (e.g. "Pokemon X / Y" -> "Pokémon X and Y"). The puzzle id still uses the original name.
+const gameNames = readJson(path.join(ROOT, "data/game-names.json"), {});
+const normalize = (s) => s.toLowerCase().normalize("NFKD").replace(/\p{M}/gu, "").replace(/&/g, "and").replace(/[^\p{L}\p{N}]+/gu, " ").trim(); // same as web/src/catalog.ts
+const gameList = readJson(path.join(ROOT, "web/public/games.json"), null);
+const knownGames = gameList && new Set(gameList.games.flatMap(([title, , aliases]) => [title, ...aliases].map(normalize)));
 const cliArgs = process.argv.slice(2);
 const onlyNew = cliArgs.includes("--new");
 const filter = cliArgs.find((a) => !a.startsWith("--"))?.toLowerCase();
@@ -205,6 +212,7 @@ function qualityFlags(info, used, textureCount, glbBytes, fill) {
 async function buildPuzzle(zipFile) {
   const info = parseZipName(zipFile);
   const id = slugify(`${info.game}-${info.name}`);
+  info.game = gameNames[info.game] ?? info.game;
   if (filter && !id.includes(filter)) return null;
   const override = overrides[id] ?? {};
   if (onlyNew && (isSkipped(override) || fs.existsSync(path.join(OUT, id, "model.glb")))) return null;
@@ -284,6 +292,9 @@ async function buildPuzzle(zipFile) {
 
   const glbBytes = fs.statSync(glb).size;
   const flags = qualityFlags(info, used, textures.length, glbBytes, fill);
+  if (knownGames && !knownGames.has(normalize(info.game))) {
+    flags.push(`"${info.game}" isn't in the game list; if it's listed under another name, map it in data/game-names.json`);
+  }
   if (model !== candidates[0]) flags.push(`Fell back to ${path.basename(model)}`);
   if (VARIANT.test(path.relative(raw, model))) flags.push("Used a variant or spare-part file");
   if (flags.length) console.log(`  flags    ${flags.join("; ")}`);
@@ -300,6 +311,8 @@ async function buildPuzzle(zipFile) {
     ...info,
     credit: override.credit ?? findCredit(files),
     sourceUrl: override.sourceUrl ?? null,
+    // Other titles that also count as correct (e.g. a regional release listed separately).
+    ...(override.accept?.length ? { accept: override.accept } : {}),
     textureCount: textures.length,
     sheet: { width, height },
   };

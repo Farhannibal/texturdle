@@ -1,0 +1,10 @@
+{
+  // Cloudflare Workers static assets: serves the built site from dist/ with no server code.
+  // Deploy with `npm run deploy`. Cache rules live in web/public/_headers.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "texturdle",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist"
+  }
+}
