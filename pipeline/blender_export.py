@@ -18,9 +18,25 @@ rotate_x = float(args[3]) if len(args) > 3 else 0.0
 preview = args[4] if len(args) > 4 else ""
 ext = os.path.splitext(model)[1].lower()
 
-bpy.ops.wm.read_factory_settings(use_empty=True)
+if ext == ".blend":
+    # Blender's own format: open it directly, nothing to convert.
+    bpy.ops.wm.open_mainfile(filepath=model)
+else:
+    bpy.ops.wm.read_factory_settings(use_empty=True)
 
-if ext == ".obj":
+if ext == ".blend":
+    # Textures packed inside the .blend have no file on disk; write them out so the hint
+    # sheet can use them.
+    unpack_dir = os.path.join(os.path.dirname(out_json), "_unpacked")
+    for img in bpy.data.images:
+        if img.packed_file and img.size[0]:
+            os.makedirs(unpack_dir, exist_ok=True)
+            name = "".join(c if c.isalnum() or c in "-_." else "_" for c in img.name)
+            target = os.path.join(unpack_dir, os.path.splitext(name)[0] + ".png")
+            img.filepath_raw = target
+            img.file_format = "PNG"
+            img.save()
+elif ext == ".obj":
     bpy.ops.wm.obj_import(filepath=model)
 elif ext == ".dae":
     bpy.ops.wm.collada_import(filepath=model)

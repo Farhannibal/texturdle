@@ -44,8 +44,11 @@ const PLATFORM_NAMES = {
   "Xbox Series X and Series S": "Xbox Series X/S",
 };
 
-// Video games, plus Pokémon paired releases ("Pokémon X and Y"), which Wikidata files as their own type.
-const BASE = `VALUES ?type { wd:Q7889 wd:Q116774927 } ?g wdt:P31 ?type; wikibase:sitelinks ?s. FILTER(?s >= ${MIN_SITELINKS})`;
+// Video games, plus types Wikidata files separately that can still be answers:
+// Pokémon paired releases ("Pokémon X and Y") and their remakes ("HeartGold and SoulSilver"),
+// compilations ("Super Mario 3D All-Stars") and expansions.
+const TYPES = ["Q7889", "Q116774927", "Q116774997", "Q16070115", "Q209163"].map((q) => `wd:${q}`).join(" ");
+const BASE = `VALUES ?type { ${TYPES} } ?g wdt:P31 ?type; wikibase:sitelinks ?s. FILTER(?s >= ${MIN_SITELINKS})`;
 // Wikidata stores many names under the language-neutral "mul" code rather than "en".
 const LANGS = `("en", "mul")`;
 const QUERIES = {

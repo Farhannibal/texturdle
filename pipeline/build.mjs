@@ -27,7 +27,7 @@ const ZIPS = path.join(ROOT, "data/modelzipped");
 const RAW = path.join(ROOT, "data/raw");
 const OUT = path.join(ROOT, "web/public/puzzles");
 const BLENDER = process.env.BLENDER ?? "C:/Program Files/Blender Foundation/Blender 4.3/blender.exe";
-const MODEL_EXTS = [".dae", ".obj", ".fbx", ".glb", ".gltf"];
+const MODEL_EXTS = [".blend", ".dae", ".obj", ".fbx", ".glb", ".gltf"];
 const IMAGE_EXTS = [".png", ".jpg", ".jpeg", ".tga", ".bmp"];
 
 // Hints 1-3 show ~10%, ~30% and ~50% of the texture pixels, each including the last one's
@@ -63,6 +63,31 @@ function downloadPage(zipFile) {
   }
 }
 const knownGames = gameList && new Set(gameList.games.flatMap(([title, , aliases]) => [title, ...aliases].map(normalize)));
+// Normalized title or alias -> the list's main title, for matching answers to list entries.
+const listTitle = new Map();
+if (gameList) {
+  for (const [title, , aliases] of gameList.games) {
+    for (const n of [title, ...aliases].map(normalize)) if (!listTitle.has(n)) listTitle.set(n, title);
+  }
+}
+
+/**
+ * The game-list name for a Models Resource game name. Uses data/game-names.json first, then
+ * tries the usual differences: "X / Y" for paired releases ("Pokémon X and Y") and a year or
+ * region in brackets ("Silent Hill 2 (2001)"). Unmatched names keep their wording, minus any
+ * such bracket.
+ */
+function resolveGame(name) {
+  if (gameNames[name]) return gameNames[name];
+  const paired = name.replace(/ \/ /g, " and ");
+  const bare = (s) => s.replace(/\s*\((?:\d{4}|JPN?|Japan|USA?|EU|PAL|NA|Europe)\)\s*$/i, "");
+  for (const candidate of [name, paired, bare(name), bare(paired)]) {
+    const hit = listTitle.get(normalize(candidate));
+    if (hit) return candidate === name ? name : hit;
+  }
+  // Not in the list: still drop a bracketed year or region so players don't see "(JPN)".
+  return bare(name);
+}
 const cliArgs = process.argv.slice(2);
 const onlyNew = cliArgs.includes("--new");
 const filter = cliArgs.find((a) => !a.startsWith("--"))?.toLowerCase();
@@ -112,8 +137,10 @@ function modelCandidates(files, override, dir) {
   if (!models.length) throw new Error("No supported model file (.dae/.obj/.fbx/.glb) in zip");
   // The main body is almost always the biggest file; extra parts (hands, hats) are smaller.
   // Variants (Mega forms, gibs, LODs, multiplayer recolours) go last.
+  // A .blend (Blender's own format) keeps materials intact, so it's tried first.
   const variant = (f) => Number(VARIANT.test(path.relative(dir, f)));
-  return models.sort((a, b) => variant(a) - variant(b) || fs.statSync(b).size - fs.statSync(a).size);
+  const blend = (f) => Number(path.extname(f).toLowerCase() !== ".blend");
+  return models.sort((a, b) => variant(a) - variant(b) || blend(a) - blend(b) || fs.statSync(b).size - fs.statSync(a).size);
 }
 
 // Rippers credit themselves in a text file inside the zip, worded many ways:
@@ -228,7 +255,7 @@ function qualityFlags(info, used, textureCount, glbBytes, fill) {
 async function buildPuzzle(zipFile) {
   const info = parseZipName(zipFile);
   const id = slugify(`${info.game}-${info.name}`);
-  info.game = gameNames[info.game] ?? info.game;
+  info.game = resolveGame(info.game);
   if (filter && !id.includes(filter)) return null;
   const override = overrides[id] ?? {};
   if (onlyNew && (isSkipped(override) || fs.existsSync(path.join(OUT, id, "model.glb")))) return null;
@@ -272,32 +299,38 @@ async function buildPuzzle(zipFile) {
     return fs.existsSync(glb) ? null : "Blender finished without writing a model";
   };
 
-  // If a file won't import (old ASCII FBX, COLLADA with morph targets), fall back to the
-  // next candidate, up to four tries.
+  // If a file won't import (old ASCII FBX, COLLADA with morph targets) or comes through with
+  // no textures, fall back to the next candidate, up to four tries.
+  const exclude = override.excludeTextures ?? [];
+  const texturesFor = (model, used) => {
+    // Fall back to every image next to the model if the importer found no texture links.
+    const found = used.textures.length
+      ? used.textures
+      : files.filter((f) => IMAGE_EXTS.includes(path.extname(f).toLowerCase()) && path.dirname(f) === path.dirname(model));
+    return found.filter((t) => !exclude.some((e) => path.basename(t).toLowerCase().includes(e.toLowerCase())));
+  };
   let model = null;
+  let used = null;
+  let textures = [];
   const candidates = modelCandidates(files, override, raw);
   const errors = [];
   for (const candidate of candidates.slice(0, 4)) {
-    const error = runBlender(candidate);
+    let error = runBlender(candidate);
     if (!error) {
-      model = candidate;
-      break;
+      used = readJson(report, { textures: [], missing: [], untexturedMaterials: 0, triangles: 0, size: { width: 1, depth: 1, height: 1 } });
+      textures = texturesFor(candidate, used);
+      if (textures.length) {
+        model = candidate;
+        break;
+      }
+      error = "no textures found";
     }
     errors.push(`${path.basename(candidate)}: ${error}`);
     console.log(`  tried    ${path.relative(raw, candidate)} (${error})`);
   }
   if (!model) throw new Error(errors.join(" | "));
   console.log(`  model    ${path.relative(raw, model)}`);
-  const used = readJson(report, { textures: [], missing: [], untexturedMaterials: 0, triangles: 0, size: { width: 1, depth: 1, height: 1 } });
   if (used.missing.length) console.log(`  missing  ${used.missing.map((p) => path.basename(p)).join(", ")}`);
-
-  // Fall back to every image next to the model if the importer found no texture links.
-  let textures = used.textures.length
-    ? used.textures
-    : files.filter((f) => IMAGE_EXTS.includes(path.extname(f).toLowerCase()) && path.dirname(f) === path.dirname(model));
-  const exclude = override.excludeTextures ?? [];
-  textures = textures.filter((t) => !exclude.some((e) => path.basename(t).toLowerCase().includes(e.toLowerCase())));
-  if (!textures.length) throw new Error("No textures found for this model");
   console.log(`  textures ${textures.length}`);
 
   const { sheet, width, height } = await buildSheet(textures);

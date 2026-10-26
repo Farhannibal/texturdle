@@ -367,5 +367,230 @@
   },
   "darkest-dungeon-2-highwayman": {
     "status": "approved"
+  },
+  "yu-gi-oh-5d-s-wheelie-breakers-yusei": {
+    "status": "rejected"
+  },
+  "tekken-6-heihachi": {
+    "status": "approved"
+  },
+  "world-of-final-fantasy-tidus": {
+    "status": "rejected"
+  },
+  "team-fortress-2-pyro": {
+    "status": "approved"
+  },
+  "half-life-g-man-multiplayer": {
+    "status": "approved"
+  },
+  "grand-theft-auto-san-andreas-big-smoke": {
+    "status": "approved"
+  },
+  "genshin-impact-paimon": {
+    "status": "approved"
+  },
+  "super-smash-bros-ultimate-ryu": {
+    "status": "approved"
+  },
+  "suzumiya-haruhi-no-gekidou-jpn-haruhi-suzumiya": {
+    "status": "approved"
+  },
+  "pokemon-heartgold-soulsilver-bell-tower": {
+    "status": "approved"
+  },
+  "super-smash-bros-brawl-ganondorf": {
+    "status": "approved"
+  },
+  "super-paper-mario-mr-l": {
+    "status": "approved"
+  },
+  "okami-amaterasu": {
+    "status": "rejected"
+  },
+  "mr-bean-s-wacky-world-mr-bean": {
+    "status": "approved"
+  },
+  "bloodborne-child-of-rom": {
+    "status": "approved"
+  },
+  "world-of-final-fantasy-yuna": {
+    "status": "approved"
+  },
+  "world-of-final-fantasy-vivi": {
+    "status": "approved"
+  },
+  "world-of-final-fantasy-squall": {
+    "status": "approved"
+  },
+  "world-of-final-fantasy-lightning": {
+    "status": "approved"
+  },
+  "world-of-final-fantasy-cloud": {
+    "status": "approved"
+  },
+  "ultimate-marvel-vs-capcom-3-phoenix-wright": {
+    "status": "approved"
+  },
+  "team-fortress-2-soldier": {
+    "status": "approved"
+  },
+  "team-fortress-2-sniper": {
+    "status": "approved"
+  },
+  "resident-evil-5-sheva-alomar": {
+    "status": "rejected"
+  },
+  "mr-bean-mr-bean": {
+    "status": "rejected"
+  },
+  "megadimension-neptunia-vii-umio": {
+    "status": "approved"
+  },
+  "lego-star-wars-the-complete-saga-darth-maul": {
+    "status": "approved"
+  },
+  "genshin-impact-eula": {
+    "status": "approved"
+  },
+  "dark-souls-ii-the-rotten": {
+    "status": "approved"
+  },
+  "dark-souls-ii-giant-lord": {
+    "status": "approved"
+  },
+  "batman-arkham-city-batman": {
+    "status": "approved"
+  },
+  "pokemon-legends-z-a-0407-roserade": {
+    "status": "approved"
+  },
+  "mortal-kombat-x-scorpion-mk-x": {
+    "status": "approved"
+  },
+  "super-smash-bros-melee-peach": {
+    "status": "approved"
+  },
+  "mario-hoops-3-on-3-white-mage": {
+    "status": "approved"
+  },
+  "mario-hoops-3-on-3-cactuar": {
+    "status": "approved"
+  },
+  "sonic-adventure-big-the-cat": {
+    "status": "approved"
+  },
+  "sonic-adventure-dr-eggman": {
+    "status": "approved"
+  },
+  "the-legend-of-zelda-majora-s-mask-3d-link-zora": {
+    "status": "approved"
+  },
+  "the-legend-of-zelda-majora-s-mask-3d-link-goron": {
+    "status": "approved"
+  },
+  "the-legend-of-zelda-majora-s-mask-3d-link-fierce-deity": {
+    "status": "approved"
+  },
+  "the-legend-of-zelda-majora-s-mask-3d-link-deku": {
+    "status": "approved"
+  },
+  "silent-hill-2-2001-james-sunderland": {
+    "status": "approved"
+  },
+  "resident-evil-4-2007-leon-coat": {
+    "status": "approved"
+  },
+  "pokemon-let-s-go-pikachu-eevee-chase": {
+    "status": "approved"
+  },
+  "pokemon-sword-shield-nessa": {
+    "status": "approved"
+  },
+  "pokemon-sword-shield-bea": {
+    "status": "approved"
+  },
+  "pokemon-sword-shield-0849-toxtricity-low-key": {
+    "status": "approved"
+  },
+  "madworld-jack-cayman": {
+    "status": "approved"
+  },
+  "kirby-s-return-to-dream-land-meta-knight": {
+    "status": "approved"
+  },
+  "castlevania-judgment-simon-belmont": {
+    "status": "approved"
+  },
+  "jojo-s-bizarre-adventure-all-star-battle-king-crimson": {
+    "status": "approved"
+  },
+  "silent-hill-3-heather-mason-princess-heart": {
+    "status": "approved"
+  },
+  "silent-hill-3-insane-cancer": {
+    "status": "approved"
+  },
+  "star-wars-the-force-unleashed-darth-maul": {
+    "status": "approved"
+  },
+  "silent-hill-3-heather-mason-default": {
+    "status": "approved"
+  },
+  "half-life-gordon-freeman": {
+    "status": "approved"
+  },
+  "genshin-impact-amber": {
+    "status": "approved"
+  },
+  "genshin-impact-venti": {
+    "status": "approved"
+  },
+  "final-fantasy-ix-steiner": {
+    "status": "approved"
+  },
+  "final-fantasy-ix-garnet-dagger": {
+    "status": "approved"
+  },
+  "borderlands-lilith": {
+    "status": "approved"
+  },
+  "tales-of-symphonia-lloyd": {
+    "status": "approved"
+  },
+  "super-smash-bros-melee-mario": {
+    "status": "approved"
+  },
+  "super-mario-sunshine-il-piantissimo": {
+    "status": "rejected"
+  },
+  "shadow-the-hedgehog-black-doom": {
+    "status": "approved"
+  },
+  "resident-evil-0-billy-normal": {
+    "status": "approved"
+  },
+  "resident-evil-jill-s-t-a-r-s": {
+    "status": "approved"
+  },
+  "paper-mario-the-thousand-year-door-toadette": {
+    "status": "approved"
+  },
+  "pac-man-world-2-pac-man": {
+    "status": "approved"
+  },
+  "dragon-ball-z-budokai-2-goku": {
+    "status": "approved"
+  },
+  "sonic-chronicles-the-dark-brotherhood-sonic": {
+    "status": "approved"
+  },
+  "animal-crossing-wild-world-rover": {
+    "status": "approved"
+  },
+  "sonic-adventure-miles-tails-prower": {
+    "status": "approved"
+  },
+  "the-legend-of-zelda-majora-s-mask-3d-cremia": {
+    "status": "rejected"
   }
 }
