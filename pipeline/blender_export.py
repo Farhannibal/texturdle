@@ -96,6 +96,15 @@ hi = Vector((max(c.x for c in corners), max(c.y for c in corners), max(c.z for c
 size = hi - lo
 tris = sum(len(p.vertices) - 2 for o in meshes for p in o.data.polygons)
 
+# Modern rips can carry 4096px textures, which bloat the model past what the web needs
+# (and past Cloudflare's 25 MiB file limit). The viewer never shows more than ~1024px.
+MAX_TEXTURE = 1024
+for img in bpy.data.images:
+    w, h = img.size
+    if max(w, h) > MAX_TEXTURE:
+        s = MAX_TEXTURE / max(w, h)
+        img.scale(max(1, round(w * s)), max(1, round(h * s)))
+
 bpy.ops.export_scene.gltf(
     filepath=out_glb,
     export_format="GLB",
