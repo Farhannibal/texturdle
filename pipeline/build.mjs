@@ -100,13 +100,24 @@ function readJson(file, fallback) {
 const slugify = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 function parseZipName(file) {
-  const parts = path.basename(file, ".zip").split(" - ");
+  // Split on " - ", but keep bracketed text together: "Characters (Ace Attorney - Dual Destinies)".
+  const parts = [];
+  for (const piece of path.basename(file, ".zip").split(" - ")) {
+    const prev = parts.at(-1);
+    const open = prev ? (prev.match(/\(/g) ?? []).length - (prev.match(/\)/g) ?? []).length : 0;
+    if (open > 0) parts[parts.length - 1] = `${prev} - ${piece}`;
+    else parts.push(piece);
+  }
   if (parts.length < 4) throw new Error(`Expected "Platform - Game - Category - Model.zip", got "${file}"`);
-  const [platform, game, category, ...rest] = parts;
+  // The model name is last and the category before it; any extra dashes belong to the game
+  // title ("Star Wars: Jedi Knight - Jedi Academy").
+  const [platform, ...middle] = parts;
+  const name = middle.pop();
+  const category = middle.pop();
+  const game = middle.join(" - ");
   // Windows can't store ":" or "/" in filenames, so downloads use "_ " and " _ " instead.
   const clean = (s) => s.replace(/ _ /g, " / ").replace(/_ /g, ": ").trim();
-  const name = clean(rest.join(" - "));
-  return { platform: clean(platform), game: clean(game), category: clean(category), name };
+  return { platform: clean(platform), game: clean(game), category: clean(category), name: clean(name) };
 }
 
 function walk(dir) {
