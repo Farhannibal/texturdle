@@ -146,6 +146,9 @@ export function createViewer(container: HTMLElement, outline = "#5b7fd0"): Viewe
         m.side = THREE.DoubleSide;
         // Some COLLADA imports come through with zero opacity; let the texture's alpha decide.
         m.opacity = 1;
+        // FBX conversions often mark every material as glass (transmission 1), which costs an
+        // extra render pass and tints surfaces. Ripped game models never need it.
+        if ("transmission" in m) (m as unknown as THREE.MeshPhysicalMaterial).transmission = 0;
         if (m.map) {
           m.map.magFilter = THREE.NearestFilter;
           m.alphaTest = 0.4;

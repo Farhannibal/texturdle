@@ -138,6 +138,10 @@ bpy.ops.export_scene.gltf(
     export_animations=False,
     export_yup=True,
     export_apply=decimate,  # bake the simplification in (only when it was needed)
+    # WebP textures are typically 5-10x smaller than PNG at near-identical quality; models
+    # with many material maps would otherwise blow past Cloudflare's 25 MiB file limit.
+    export_image_format="WEBP",
+    export_image_quality=85,
 )
 
 # A quick front-on render (Workbench, textured, transparent background) for reviewing
