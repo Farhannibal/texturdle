@@ -121,11 +121,23 @@ for img in bpy.data.images:
         s = MAX_TEXTURE / max(w, h)
         img.scale(max(1, round(w * s)), max(1, round(h * s)))
 
+# Very dense rips (600k+ triangles) make huge files and slow phones. Simplify anything over
+# MAX_TRIANGLES down to about that; at the viewer's size the difference isn't visible.
+MAX_TRIANGLES = 150_000
+decimate = tris > MAX_TRIANGLES
+if decimate:
+    ratio = MAX_TRIANGLES / tris
+    for o in meshes:
+        mod = o.modifiers.new("texturdle_decimate", "DECIMATE")
+        mod.ratio = ratio
+    print(f"DECIMATE: {tris} triangles -> ~{MAX_TRIANGLES}")
+
 bpy.ops.export_scene.gltf(
     filepath=out_glb,
     export_format="GLB",
     export_animations=False,
     export_yup=True,
+    export_apply=decimate,  # bake the simplification in (only when it was needed)
 )
 
 # A quick front-on render (Workbench, textured, transparent background) for reviewing

@@ -109,14 +109,22 @@ function parseZipName(file) {
     else parts.push(piece);
   }
   if (parts.length < 4) throw new Error(`Expected "Platform - Game - Category - Model.zip", got "${file}"`);
-  // The model name is last and the category before it; any extra dashes belong to the game
-  // title ("Star Wars: Jedi Knight - Jedi Academy").
-  const [platform, ...middle] = parts;
-  const name = middle.pop();
-  const category = middle.pop();
-  const game = middle.join(" - ");
   // Windows can't store ":" or "/" in filenames, so downloads use "_ " and " _ " instead.
   const clean = (s) => s.replace(/ _ /g, " / ").replace(/_ /g, ": ").trim();
+  // The model name is last. With extra dashes, they belong either to the game title
+  // ("Star Wars: Jedi Knight - Jedi Academy") or to the category ("Playable Characters -
+  // Cosmos"): take the longest game title the game list knows, else the shortest.
+  const [platform, ...middle] = parts;
+  const name = middle.pop();
+  let split = 1;
+  for (let k = middle.length - 1; k >= 1; k--) {
+    if (listTitle.has(normalize(clean(middle.slice(0, k).join(" - "))))) {
+      split = k;
+      break;
+    }
+  }
+  const game = middle.slice(0, split).join(" - ");
+  const category = middle.slice(split).join(" - ");
   return { platform: clean(platform), game: clean(game), category: clean(category), name: clean(name) };
 }
 
