@@ -72,6 +72,32 @@ def feeds_colour(node, depth=0):
     return False
 
 
+CONVERTED_DIR = os.path.join(os.path.dirname(out_json), "_converted")
+# File signatures the hint-sheet builder (sharp) can read: PNG, JPEG, GIF, WebP.
+READABLE = (b"\x89PNG", b"\xff\xd8", b"GIF8", b"RIFF")
+
+
+def readable_copy(img, path):
+    """Path to a version of this texture the hint builder can read. BMP, TGA, DDS and the like
+    (including BMPs saved with a .png name) are written out as real PNG copies."""
+    with open(path, "rb") as f:
+        head = f.read(4)
+    if head.startswith(READABLE) or img.size[0] == 0:
+        return path
+    os.makedirs(CONVERTED_DIR, exist_ok=True)
+    stem = "".join(c if c.isalnum() or c in "-_." else "_" for c in os.path.splitext(os.path.basename(path))[0])
+    target = os.path.join(CONVERTED_DIR, f"{stem}.png")
+    # Copy the pixels into a fresh image; img.copy() of a file image carries no pixel data.
+    w, h = img.size
+    copy = bpy.data.images.new(f"{stem}_converted", w, h, alpha=True)
+    copy.pixels.foreach_set(img.pixels[:])
+    copy.filepath_raw = target
+    copy.file_format = "PNG"
+    copy.save()
+    bpy.data.images.remove(copy)
+    return target
+
+
 textures = []
 missing = []
 seen = set()
@@ -92,9 +118,21 @@ for mat in bpy.data.materials:
         if path in seen:
             continue
         seen.add(path)
-        (textures if os.path.isfile(path) else missing).append(path)
+        if os.path.isfile(path):
+            textures.append(readable_copy(node.image, path))
+        else:
+            missing.append(path)
     if not has_colour_texture and mat.users:
         untextured += 1
+
+# Images Blender couldn't load (odd PNG variants and the like) would crash the export, so
+# unlink them from the materials; the hint sheet still uses the file itself.
+for mat in bpy.data.materials:
+    if mat.use_nodes:
+        for node in mat.node_tree.nodes:
+            if node.type == "TEX_IMAGE" and node.image is not None and node.image.size[0] == 0:
+                print(f"UNLOADABLE: {node.image.name}")
+                node.image = None
 
 # Some rips are exported lying down; overrides.json can give an X rotation to stand them up.
 if rotate_x:
@@ -132,17 +170,26 @@ if decimate:
         mod.ratio = ratio
     print(f"DECIMATE: {tris} triangles -> ~{MAX_TRIANGLES}")
 
-bpy.ops.export_scene.gltf(
-    filepath=out_glb,
-    export_format="GLB",
-    export_animations=False,
-    export_yup=True,
-    export_apply=decimate,  # bake the simplification in (only when it was needed)
-    # WebP textures are typically 5-10x smaller than PNG at near-identical quality; models
-    # with many material maps would otherwise blow past Cloudflare's 25 MiB file limit.
-    export_image_format="WEBP",
-    export_image_quality=85,
-)
+def export(image_format):
+    bpy.ops.export_scene.gltf(
+        filepath=out_glb,
+        export_format="GLB",
+        export_animations=False,
+        export_yup=True,
+        export_apply=decimate,  # bake the simplification in (only when it was needed)
+        export_image_format=image_format,
+        export_image_quality=85,
+    )
+
+
+# WebP textures are typically 5-10x smaller than PNG at near-identical quality; models with
+# many material maps would otherwise blow past Cloudflare's 25 MiB file limit. Blender can't
+# write WebP for some images (one-channel greyscale PNGs), so fall back to PNG for those.
+try:
+    export("WEBP")
+except RuntimeError as err:
+    print(f"WEBP export failed ({err}); retrying with PNG textures")
+    export("AUTO")
 
 # A quick front-on render (Workbench, textured, transparent background) for reviewing
 # a batch without loading every model in the browser.
