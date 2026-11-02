@@ -21,6 +21,7 @@
   --checker-b: #233d82;
   --correct: #3fd38a;
   --platform: #ffc83d;
+  --series: #ff8a3d;
   --wrong: #ff5d6c;
   --skip: #3d5592;
   --outline: #07112b;
@@ -144,6 +145,7 @@ button:disabled { cursor: not-allowed; }
 .slot.current { border-color: var(--muted); }
 .slot.current .slot-title { color: var(--muted); font-weight: 400; }
 .slot.correct { border-color: var(--correct); } .slot.correct .slot-tag { background: var(--correct); }
+.slot.series { border-color: var(--series); } .slot.series .slot-tag { background: var(--series); }
 .slot.platform { border-color: var(--platform); } .slot.platform .slot-tag { background: var(--platform); }
 .slot.wrong { border-color: var(--wrong); } .slot.wrong .slot-tag { background: var(--wrong); }
 .slot.skip .slot-title { color: var(--muted); } .slot.skip .slot-tag { background: var(--skip); color: var(--ink); }
@@ -204,7 +206,7 @@ dialog p { margin: 0; }
 .help-key { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
 .help-key li { display: flex; align-items: center; gap: 10px; }
 .key { width: 16px; height: 16px; border-radius: 4px; }
-.key.correct { background: var(--correct); } .key.platform { background: var(--platform); } .key.wrong { background: var(--wrong); }
+.key.correct { background: var(--correct); } .key.series { background: var(--series); } .key.platform { background: var(--platform); } .key.wrong { background: var(--wrong); }
 .stat-nums { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; text-align: center; }
 .stat b { display: block; font-family: var(--f-display); font-size: 30px; font-variant-numeric: tabular-nums; }
 .stat span { font-size: 12px; color: var(--muted); }
@@ -234,6 +236,7 @@ dialog.archive { width: min(560px, calc(100vw - 32px)); max-height: min(760px, c
 .day-squares { display: flex; gap: 3px; }
 .day-squares i { width: 10px; height: 10px; border-radius: 2px; background: color-mix(in srgb, var(--skip) 60%, transparent); }
 .day-squares i.correct { background: var(--correct); }
+.day-squares i.series { background: var(--series); }
 .day-squares i.platform { background: var(--platform); }
 .day-squares i.wrong { background: var(--wrong); }
 .day-squares i.skip { background: var(--skip); }

@@ -57,6 +57,8 @@ const QUERIES = {
   aliases: `SELECT ?g ?v WHERE { ${BASE} ?g skos:altLabel ?v. FILTER(LANG(?v) IN ${LANGS}) }`,
   // Japanese titles, so players can type the original name (ロックマン finds Mega Man).
   japanese: `SELECT ?g ?v WHERE { ${BASE} { ?g rdfs:label ?v } UNION { ?g skos:altLabel ?v } FILTER(LANG(?v) = "ja") }`,
+  // "Part of the series" (P179), for the game's "Same series" hint.
+  series: `SELECT ?g ?sr WHERE { ${BASE} ?g wdt:P179 ?sr. }`,
 };
 
 async function sparql(query) {
@@ -73,24 +75,28 @@ for (const b of await sparql(QUERIES.labels)) {
   const id = b.g.value.split("/").pop();
   // Prefer the English label; fall back to the language-neutral one.
   if (b.l.value === "en" || !games.has(id)) {
-    games.set(id, { title: b.v.value, platforms: new Set(), aliases: new Set(), pop: Number(b.s.value) });
+    games.set(id, { title: b.v.value, platforms: new Set(), aliases: new Set(), series: new Set(), pop: Number(b.s.value) });
   }
 }
 for (const b of await sparql(QUERIES.platforms)) {
   const name = PLATFORM_NAMES[b.v.value] ?? b.v.value;
   games.get(b.g.value.split("/").pop())?.platforms.add(name);
 }
+for (const b of await sparql(QUERIES.series)) {
+  games.get(b.g.value.split("/").pop())?.series.add(b.sr.value.split("/").pop());
+}
 for (const b of [...(await sparql(QUERIES.aliases)), ...(await sparql(QUERIES.japanese))]) {
   const g = games.get(b.g.value.split("/").pop());
   if (g && b.v.value !== g.title) g.aliases.add(b.v.value);
 }
 
-// Compact format: a shared platform table, then [title, platform indexes, aliases, popularity].
+// Compact format: a shared platform table, then [title, platform indexes, aliases, popularity,
+// series ids]. Series are Wikidata ids (e.g. "Q1060329"); only equality matters to the game.
 const platforms = [...new Set([...games.values()].flatMap((g) => [...g.platforms]))].sort();
 const platformIndex = new Map(platforms.map((p, i) => [p, i]));
 const rows = [...games.values()]
   .sort((a, b) => b.pop - a.pop)
-  .map((g) => [g.title, [...g.platforms].map((p) => platformIndex.get(p)), [...g.aliases], g.pop]);
+  .map((g) => [g.title, [...g.platforms].map((p) => platformIndex.get(p)), [...g.aliases], g.pop, [...g.series]]);
 
 fs.writeFileSync(OUT, JSON.stringify({ source: "Wikidata (CC0)", builtAt: new Date().toISOString(), platforms, games: rows }));
 console.log(`${rows.length} games, ${platforms.length} platforms, ${Math.round(fs.statSync(OUT).size / 1024)} KB -> web/public/games.json`);

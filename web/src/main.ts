@@ -46,6 +46,7 @@ const day = archiveDay ?? today;
 const puzzle = practice ?? dailyPuzzle(puzzles, day);
 // The answer, plus any other titles that count (regional names listed as separate games).
 const answerIds = [puzzle.game, ...(puzzle.accept ?? [])].map(gameId);
+const answerGames = catalog.filter((g) => answerIds.includes(g.id));
 const label = practice ? "Practice" : `#${day}`;
 
 // A past day finished on the day is shown as it was; otherwise archive play has its own save.
@@ -128,7 +129,7 @@ function showInFrame(n: number, animate = false) {
 
 // ---- Guess board ------------------------------------------------------------
 
-const RESULT_TEXT = { correct: "Correct", platform: "Right platform", wrong: "Wrong", skip: "Skipped" };
+const RESULT_TEXT = { correct: "Correct", series: "Same series", platform: "Right platform", wrong: "Wrong", skip: "Skipped" };
 
 function renderBoard() {
   const board = $("#board");
@@ -204,7 +205,7 @@ input.addEventListener("keydown", (e) => {
 });
 
 function play(game: Game | null) {
-  state = submitGuess(state, puzzle, answerIds, game);
+  state = submitGuess(state, puzzle, answerIds, game, answerGames);
   saveGame(saveKey, state);
   viewing = unlockedStage(state);
   selected = null;

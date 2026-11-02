@@ -1,4 +1,4 @@
-import type { Game } from "./catalog";
+import { sameSeries, type Game } from "./catalog";
 
 export interface Puzzle {
   id: string;
@@ -13,7 +13,7 @@ export interface Puzzle {
   textureCount: number;
 }
 
-export type Result = "correct" | "platform" | "wrong" | "skip";
+export type Result = "correct" | "series" | "platform" | "wrong" | "skip";
 
 export interface Guess {
   gameId: string | null;
@@ -44,15 +44,19 @@ export const newGame = (puzzleId: string): GameState => ({ puzzleId, guesses: []
 /** The furthest stage the player has unlocked (1 to MAX_GUESSES). Finished games unlock everything. */
 export const unlockedStage = (s: GameState) => (s.status === "playing" ? Math.min(s.guesses.length + 1, MAX_GUESSES) : MAX_GUESSES);
 
-export function submitGuess(state: GameState, puzzle: Puzzle, answerIds: string[], game: Game | null): GameState {
+/** Scores a guess. `answers` are the catalog entries for the answer (and any accepted titles);
+ *  a guess in the same series outranks one on the right platform. */
+export function submitGuess(state: GameState, puzzle: Puzzle, answerIds: string[], game: Game | null, answers: Game[] = []): GameState {
   if (state.status !== "playing") return state;
   const result: Result = !game
     ? "skip"
     : answerIds.includes(game.id)
       ? "correct"
-      : game.platforms.includes(puzzle.platform)
-        ? "platform"
-        : "wrong";
+      : answers.some((a) => sameSeries(a, game))
+        ? "series"
+        : game.platforms.includes(puzzle.platform)
+          ? "platform"
+          : "wrong";
   const guesses = [...state.guesses, { gameId: game?.id ?? null, title: game?.title ?? "Skipped", result }];
   const status = result === "correct" ? "won" : guesses.length >= MAX_GUESSES ? "lost" : "playing";
   return { ...state, guesses, status };
@@ -106,7 +110,7 @@ function hash(s: string) {
 
 // ---- Share text -----------------------------------------------------------
 
-const SQUARE: Record<Result, string> = { correct: "🟩", platform: "🟨", wrong: "🟥", skip: "⬛" };
+const SQUARE: Record<Result, string> = { correct: "🟩", series: "🟧", platform: "🟨", wrong: "🟥", skip: "⬛" };
 
 export function shareText(state: GameState, label: string) {
   const score = state.status === "won" ? `${state.guesses.length}/${MAX_GUESSES}` : `X/${MAX_GUESSES}`;

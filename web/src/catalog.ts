@@ -10,6 +10,8 @@ export interface Game {
   aliases: string[];
   /** Rough fame (Wikipedia language editions); ranks well-known games first in search. */
   pop: number;
+  /** Wikidata ids of the series this game is part of (e.g. Resident Evil), for "Same series". */
+  series: string[];
   /** Normalized title and aliases, precomputed so search stays fast over 20k games. */
   keys: string[];
   /** The same keys with spaces removed, so "biohazard" finds "Bio Hazard". */
@@ -18,7 +20,7 @@ export interface Game {
 
 interface GameList {
   platforms: string[];
-  games: [title: string, platforms: number[], aliases: string[], pop: number][];
+  games: [title: string, platforms: number[], aliases: string[], pop: number, series?: string[]][];
 }
 
 type Entry = [title: string, platforms: string, aliases?: string];
@@ -174,15 +176,16 @@ export const gameId = (title: string) => normalize(title).replace(/ /g, "-");
 export function buildCatalog(extra: { title: string; platform: string }[], list?: GameList): Game[] {
   const byId = new Map<string, Game>();
   // Games with the same name (remakes, regional releases) merge into one entry.
-  const add = (title: string, platforms: string[], aliases: string[], pop = 0) => {
+  const add = (title: string, platforms: string[], aliases: string[], pop = 0, series: string[] = []) => {
     const id = gameId(title);
-    const g = byId.get(id) ?? { id, title, platforms: [], aliases: [], pop: 0, keys: [], compact: [] };
+    const g = byId.get(id) ?? { id, title, platforms: [], aliases: [], pop: 0, series: [], keys: [], compact: [] };
     for (const p of platforms) if (!g.platforms.includes(p)) g.platforms.push(p);
     for (const a of aliases) if (!g.aliases.includes(a)) g.aliases.push(a);
     g.pop = Math.max(g.pop, pop);
+    for (const s of series) if (!g.series.includes(s)) g.series.push(s);
     byId.set(id, g);
   };
-  if (list) for (const [title, p, aliases, pop] of list.games) add(title, p.map((i) => list.platforms[i]), aliases, pop);
+  if (list) for (const [title, p, aliases, pop, series] of list.games) add(title, p.map((i) => list.platforms[i]), aliases, pop, series);
   for (const [title, platforms, aliases] of ENTRIES) {
     add(title, platforms.split(",").map((s) => s.trim()), aliases ? aliases.split(",").map((s) => s.trim()) : []);
   }
@@ -228,4 +231,19 @@ export function search(catalog: Game[], query: string, limit = 8): Game[] {
     .sort((a, b) => a.s - b.s || b.g.pop - a.g.pop || a.g.title.localeCompare(b.g.title))
     .slice(0, limit)
     .map((r) => r.g);
+}
+
+/** Rough series key from a title, used only when Wikidata doesn't say: the part before any
+ *  colon, without numbers or Roman numerals ("Resident Evil 5" -> "resident evil"). */
+function seriesKey(title: string) {
+  const key = normalize(title.split(":")[0]).replace(/\b(?:[ivx]+|\d+d?)\b/g, "").replace(/\s+/g, " ").trim();
+  return key.startsWith("pokemon") ? "pokemon" : key;
+}
+
+/** Whether two games are in the same series. Uses Wikidata's "part of the series" when both
+ *  games have it; otherwise compares title prefixes (and only when that prefix is specific). */
+export function sameSeries(a: Game, b: Game) {
+  if (a.series.length && b.series.length) return a.series.some((s) => b.series.includes(s));
+  const ka = seriesKey(a.title);
+  return ka.length >= 4 && ka === seriesKey(b.title);
 }
