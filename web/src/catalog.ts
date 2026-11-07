@@ -189,14 +189,38 @@ export function buildCatalog(extra: { title: string; platform: string }[], list?
   for (const [title, platforms, aliases] of ENTRIES) {
     add(title, platforms.split(",").map((s) => s.trim()), aliases ? aliases.split(",").map((s) => s.trim()) : []);
   }
-  // Answers get no popularity boost, so they never stand out in the suggestions.
-  for (const e of extra) add(e.title, [e.platform], []);
   const games = [...byId.values()];
-  for (const g of games) {
+  const setKeys = (g: Game) => {
     g.keys = [...new Set([g.title, ...g.aliases].map(normalize))];
     g.compact = g.keys.map((k) => k.replaceAll(" ", ""));
+  };
+  games.forEach(setKeys);
+  // An answer named after one release of a listed game ("Super Smash Bros. for Nintendo 3DS")
+  // joins that game, so it shares its other names and its series. Anything else gets its own
+  // entry, with no popularity boost so answers never stand out in the suggestions.
+  for (const e of extra) {
+    const g = findGame(games, e.title);
+    if (g) {
+      if (!g.platforms.includes(e.platform)) g.platforms.push(e.platform);
+      continue;
+    }
+    add(e.title, [e.platform], []);
+    const added = byId.get(gameId(e.title))!;
+    setKeys(added);
+    games.push(added);
   }
   return games;
+}
+
+/** The catalog entry for a title: the game with that title, else the best-known game that
+ *  has it as an alias. */
+export function findGame(catalog: Game[], title: string): Game | undefined {
+  const id = gameId(title);
+  const key = normalize(title);
+  return (
+    catalog.find((g) => g.id === id) ??
+    catalog.filter((g) => g.keys.includes(key)).sort((a, b) => b.pop - a.pop)[0]
+  );
 }
 
 /** Loads the full game list; falls back to the built-in list if it can't be fetched. */

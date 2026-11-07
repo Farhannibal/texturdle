@@ -1,5 +1,5 @@
 import "./style.css";
-import { gameId, loadCatalog, search, type Game } from "./catalog";
+import { findGame, loadCatalog, search, type Game } from "./catalog";
 import {
   MAX_GUESSES, MODEL_STAGE, STAGES, dailyPuzzle, msUntilNext, newGame, puzzleDate, puzzleNumber, shareText, submitGuess,
   unlockedStage, useSchedule,
@@ -45,8 +45,8 @@ const archiveDay = !practice && Number.isInteger(dayParam) && dayParam >= 1 && d
 const day = archiveDay ?? today;
 const puzzle = practice ?? dailyPuzzle(puzzles, day);
 // The answer, plus any other titles that count (regional names listed as separate games).
-const answerIds = [puzzle.game, ...(puzzle.accept ?? [])].map(gameId);
-const answerGames = catalog.filter((g) => answerIds.includes(g.id));
+const answerGames = [puzzle.game, ...(puzzle.accept ?? [])].map((t) => findGame(catalog, t)).filter((g) => g !== undefined);
+const answerIds = answerGames.map((g) => g.id);
 const label = practice ? "Practice" : `#${day}`;
 
 // A past day finished on the day is shown as it was; otherwise archive play has its own save.
